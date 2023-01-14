@@ -1,0 +1,2 @@
+5 1 0 0 0 0 
+~ from initial numbers: 4 9 9 9 9 
