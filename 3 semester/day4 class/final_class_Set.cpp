@@ -119,7 +119,7 @@ class Set {
       return false;
     }
     /*Сравнение >, конец*/
-    /*Перегрузка операторов, конец*/
+    /*Сравнение множеств, конец*/
 
     /*Операции над множествами, начало*/
     /*Копирующее присваивание =, начало*/
@@ -180,14 +180,14 @@ class Set {
     /*Пересечение множеств без присваивания, конец*/
 
     /*Пересечение множеств с присваиванием, начало*/
-    Set& operator&(const Set& other) {
+    Set& operator&=(const Set& other) {
       *this = *this & other;
       return *this;
     }
     /*Пересечение множеств с присваиванием, конец*/
 
     /*Разность множеств без присваивания, начало*/
-    Set operator/(const Set& other) const {
+    Set operator-(const Set& other) const {
       Set NewSet;
       Set InterSet = *this & other;
       int i, j, flag;
