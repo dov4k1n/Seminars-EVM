@@ -69,6 +69,8 @@ class Set {
       }
       in >> tmp[set.size];
       set.size++;
+      if (set.data)
+        delete[] set.data;
       set.data = new int[set.size];
       for (int i = 0; i < set.size; i++) {
         set.data[i] = tmp[i];
@@ -86,6 +88,8 @@ class Set {
       }
       tmp[size] = value;
       size++;
+      if (data)
+        delete[] data;
       data = new int[size];
       for (int i = 0; i < size; i++) {
         data[i] = tmp[i];
@@ -116,6 +120,8 @@ class Set {
         }
       }
       size = nsize;
+      if (data)
+        delete[] data;
       data = new int[nsize];
       for (int i = 0; i < nsize; i++) {
         data[i] = tmp[i];
@@ -139,6 +145,8 @@ class Set {
         }
       }
       size = nsize;
+      if (data)
+        delete[] data;
       data = new int[nsize];
       for (int i = 0; i < nsize; i++) {
         data[i] = tmp[i];
