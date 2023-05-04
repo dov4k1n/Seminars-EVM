@@ -1,13 +1,12 @@
 #include <iostream>
 #include <cstdint>
 #include <cstdio>
-#include <time.h>
 
 class exe_info {
   public:
-    // DOS Header
+    // DOS Header:
     uint16_t e_magic;         // Magic number 0x5A4D (~MZ in ASCII)
-    uint16_t e_cblp;          // Bytes on last page of file
+    /*uint16_t e_cblp;          // Bytes on last page of file
     uint16_t e_cp;            // Pages in file
     uint16_t e_crlc;          // Relocations
     uint16_t e_cparhdr;       // Size of header in paragraphs
@@ -23,14 +22,14 @@ class exe_info {
     uint16_t e_res[4];        // Reserved words
     uint16_t e_oemid;         // OEM identifier (for e_oeminfo)
     uint16_t e_oeminfo;       // OEM information; e_oemid specific
-    uint16_t e_res2[10];      // Reserved words
+    uint16_t e_res2[10];*/     // Reserved words
     uint32_t e_lfanew;        // File address of new exe header
     
     // DOS Stub not neaded to read. ends in e_lfanew address in hex
 
     uint32_t Signature;       // 0x00004550 (Portable Executable)
 
-    // COFF Header ~ File Header
+    // COFF Header ~ File Header:
     uint16_t Machine;                       // Architecture (intel 32 bit)
     uint16_t NumberOfSections;              
     uint32_t TimeDateStamp;                 // Date and Time of file creation
@@ -756,7 +755,6 @@ int main(int argc, char *argv[]) {
 	FILE *f = fopen( argv[1], "rb");
 	if (f == NULL) {
 		std::cout << "Error openning file" << std::endl;
-		fclose(f);
 		return -1;
 	}
 
