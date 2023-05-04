@@ -1,0 +1,5 @@
+1. https://www.youtube.com/watch?v=-OzGawe9fmM&ab_channel=AlekOS
+
+2. https://en.wikipedia.org/wiki/Portable_Executable#/media/File:Portable_Executable_32_bit_Structure_in_SVG_fixed.svg
+
+3. https://learn.microsoft.com/en-us/windows/win32/debug/pe-format
