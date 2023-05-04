@@ -5,3 +5,5 @@
 3. https://learn.microsoft.com/en-us/windows/win32/debug/pe-format
 
 4. https://www.mitec.cz/exe.html
+
+5. http://xn--80akaaied0aladi2a9h.xn--p1ai/course/sem_4/index.html
