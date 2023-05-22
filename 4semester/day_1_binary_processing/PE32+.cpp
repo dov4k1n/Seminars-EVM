@@ -1,11 +1,45 @@
 #include <iostream>
 #include <cstdint>
 #include <cstdio>
+#include <time.h>
+
+void epoch_to_human(const time_t& rawtime) {
+  struct tm ts;
+  char buf[80];
+  printf("line 9\n");
+
+  // Format time, "ddd yyyy-mm-dd hh:mm:ss zzz"
+  // ~ weekday day-month-year hour:minute:second timezone
+  std::cout << rawtime << std::endl;
+  ts = *localtime(&rawtime);
+  printf("line 14\n");
+  strftime(buf, sizeof(buf), "%a %d.%m.%Y %H:%M:%S %Z", &ts);
+  printf("line 16\n");
+  printf("%s\n", buf);
+  printf("line 18\n");
+}
+
+struct section_table {
+  // Section Table ~ Section Header.
+  // Each section header (section table entry) has
+  // the following format, for a total of 40 bytes per entry.
+
+  uint64_t Name;
+  //uint32_t VirtualSize;
+  //uint32_t VirtualAddress;                // RVA address of section with code
+  uint32_t SizeOfRawData;
+  uint32_t PointerToRawData;              // address to RAW data
+  //uint32_t PointerToRelocations;
+  //uint32_t PointerToLinenumbers;
+  //uint16_t NumberOfRelocations;
+  //uint16_t NumberOfLinenumbers;
+  //uint32_t CharacteristicsSectionHeader;
+};
 
 class exe_info {
   public:
     // DOS Header:
-    uint16_t e_magic;         // Magic number 0x5A4D (~MZ in ASCII)
+    uint16_t e_magic;         // Magic number 0x5A4D for exe files (~MZ in ASCII)
     /*uint16_t e_cblp;          // Bytes on last page of file
     uint16_t e_cp;            // Pages in file
     uint16_t e_crlc;          // Relocations
@@ -25,22 +59,22 @@ class exe_info {
     uint16_t e_res2[10];*/     // Reserved words
     uint32_t e_lfanew;        // File address of new exe header
     
-    // DOS Stub not neaded to read. ends in e_lfanew address in hex
+    // DOS Stub is not neaded to read. ends in e_lfanew address in hex
 
     uint32_t Signature;       // 0x00004550 (Portable Executable)
 
     // COFF Header ~ File Header:
     uint16_t Machine;                       // Architecture (intel 32 bit)
-    uint16_t NumberOfSections;              
+    uint16_t NumberOfSections;              // Number of sections in Section Header (1, 2, 3, ...)
     uint32_t TimeDateStamp;                 // Date and Time of file creation
     uint32_t PointerToSymbolTable;          // zeros
     uint32_t NumberOfSymbols;               // zeros
     uint16_t SizeOfOptionalHeader;          // Size of the next header
     uint16_t CharacteristicsFileHeader;     // Characteristics of file
 
-    // Optional Header 32:
+    // Optional Header:
     // Standard COFF Fields
-    uint16_t Magic;                         // 0x010B (PE32)
+    uint16_t Magic;                         // 0x020B (PE32+)
     uint8_t MajorLinkerVersion;             // версия компановщика (5.4 ~ 05)
     uint8_t MinorLinkerVersion;             // версия компановщика (5.4 ~ 04)
     uint32_t SizeOfCode;                    // Size of code sections  
@@ -50,8 +84,8 @@ class exe_info {
     uint32_t BaseOfCode;                    // RVA (relative virtual address) sections with code
 
     // Windows Specific Fields
-    uint32_t BaseOfData;                    // RVA sections with data
-    uint32_t ImageBase;                     // Preferable virtual address (multiple to 64kb, default 4mb)
+    // uint32_t BaseOfData; (absent in PE32+)                    // RVA sections with data
+    uint64_t ImageBase;                     // Preferable virtual address (multiple to 64kb, default 4mb)
     uint32_t SectionAlignment;              // Alignment in virtual memory (4 kilobytes)
     uint32_t FileAlignment;                 // Alignment in exe file (512kb)
     uint16_t MajorOperatingSystemVersion;   // Operating system version (default 4.0 ~ 0004)
@@ -66,10 +100,10 @@ class exe_info {
     uint32_t CheckSum;
     uint16_t Subsystem;                     // type of program (graphical or console)
     uint16_t DllCharacteristics;
-    uint32_t SizeOfStackReserve;            // reserved size for Stack (default 1Mb)
-    uint32_t SizeOfStackCommit;             // initial Stack size (default 4kb)
-    uint32_t SizeOfHeapReserve;             // reserved size for Heap (default 1Mb)
-    uint32_t SizeOfHeapCommit;              // initial Heap size (default 4kb)
+    uint64_t SizeOfStackReserve;            // reserved size for Stack (default 1Mb)
+    uint64_t SizeOfStackCommit;             // initial Stack size (default 4kb)
+    uint64_t SizeOfHeapReserve;             // reserved size for Heap (default 1Mb)
+    uint64_t SizeOfHeapCommit;              // initial Heap size (default 4kb)
     uint32_t LoaderFlags;                   // unused (0x00000000)
     uint32_t NumberOfRvaAndSizes;           // number of elements in data_directories (16)
 
@@ -92,30 +126,17 @@ class exe_info {
     uint64_t CLRRuntimeHeader;
     uint64_t Reserved;                      // must be zero
     */
-    // end of Optional Header 32.
+    // end of Optional Header.
 
-    // Section Table ~ Section Header
-    // Each section header (section table entry) has
-    // the following format, for a total of 40 bytes per entry.
-    /*
-    uint64_t Name;
-    uint32_t VirtualSize;
-    uint32_t VirtualAddress;                // RVA address of section with code
-    uint32_t SizeOfRawData;
-    uint32_t PointerToRawData;
-    uint32_t PointerToRelocations;
-    uint32_t PointerToLinenumbers;
-    uint16_t NumberOfRelocations;
-    uint16_t NumberOfLinenumbers;
-    uint32_t CharacteristicsSectionHeader;
-    */
+    // Section Table ~ Section Header:
+    section_table* Section;
 };
 
 const int EXE_SUCCESS = 0;
 const int READ_ERROR = -1;
 const int NOT_EXE = -10;
 const int NOT_PE = -11;
-const int NOT_PE32 = -12;
+const int NOT_PE32plus = -12;
 
 int read_exe_info (exe_info *exe, FILE *f) {
   fseek(f, 0, SEEK_SET);
@@ -136,7 +157,9 @@ int read_exe_info (exe_info *exe, FILE *f) {
     return READ_ERROR;
   exe->e_lfanew = e_lfanew;
 
+  printf("cur pos %ld\n", ftell(f));
   fseek(f, e_lfanew, SEEK_SET); // сместились к началу signature
+  printf("shifted pos %ld\n", ftell(f));
 
   uint32_t Signature;
   res = fread(&Signature, sizeof(Signature), 1, f);
@@ -192,8 +215,8 @@ int read_exe_info (exe_info *exe, FILE *f) {
   res = fread(&Magic, sizeof(Magic), 1, f);
   if (res != 1)
     return READ_ERROR;
-  if (Magic != 0x010B)
-    return NOT_PE32;
+  if (Magic != 0x020B)
+    return NOT_PE32plus;
   exe->Magic = Magic;
   
   uint8_t MajorLinkerVersion;
@@ -238,13 +261,13 @@ int read_exe_info (exe_info *exe, FILE *f) {
     return READ_ERROR;
   exe->BaseOfCode = BaseOfCode;
   
-  uint32_t BaseOfData;
+  /*uint32_t BaseOfData;
   res = fread(&BaseOfData, sizeof(BaseOfData), 1, f);
   if (res != 1)
     return READ_ERROR;
-  exe->BaseOfData = BaseOfData;
+  exe->BaseOfData = BaseOfData;*/
 
-  uint32_t ImageBase;
+  uint64_t ImageBase;
   res = fread(&ImageBase, sizeof(ImageBase), 1, f);
   if (res != 1)
     return READ_ERROR;
@@ -334,25 +357,25 @@ int read_exe_info (exe_info *exe, FILE *f) {
     return READ_ERROR;
   exe->DllCharacteristics = DllCharacteristics; 
 
-  uint32_t SizeOfStackReserve;
+  uint64_t SizeOfStackReserve;
   res = fread(&SizeOfStackReserve, sizeof(SizeOfStackReserve), 1, f);
   if (res != 1)
     return READ_ERROR;
   exe->SizeOfStackReserve = SizeOfStackReserve;
 
-  uint32_t SizeOfStackCommit;
+  uint64_t SizeOfStackCommit;
   res = fread(&SizeOfStackCommit, sizeof(SizeOfStackCommit), 1, f);
   if (res != 1)
     return READ_ERROR;
   exe->SizeOfStackCommit = SizeOfStackCommit;
 
-  uint32_t SizeOfHeapReserve;
+  uint64_t SizeOfHeapReserve;
   res = fread(&SizeOfHeapReserve, sizeof(SizeOfHeapReserve), 1, f);
   if (res != 1)
     return READ_ERROR;
   exe->SizeOfHeapReserve = SizeOfHeapReserve;
 
-  uint32_t SizeOfHeapCommit;
+  uint64_t SizeOfHeapCommit;
   res = fread(&SizeOfHeapCommit, sizeof(SizeOfHeapCommit), 1, f);
   if (res != 1)
     return READ_ERROR;
@@ -369,6 +392,55 @@ int read_exe_info (exe_info *exe, FILE *f) {
   if (res != 1)
     return READ_ERROR;
   exe->NumberOfRvaAndSizes = NumberOfRvaAndSizes;
+
+  
+  
+  /*perfect
+  //printf("cur pos %ld\n", ftell(f));
+  fseek(f, e_lfanew, SEEK_SET);
+  //printf("shifted pos %ld\n", ftell(f));
+  fseek(f, SizeOfOptionalHeader, SEEK_CUR); // пропустили Optional Header
+  //printf("shifted pos %ld\n", ftell(f));
+  fseek(f, 8, SEEK_CUR); // сместились ещё на 24 байта к началу Section Table
+  //printf("shifted pos %ld\n", ftell(f));
+  */
+
+
+  /*shitty*/
+  //printf("cur pos %ld\n", ftell(f));
+  fseek(f, 4, SEEK_SET);
+  //printf("shifted pos %ld\n", ftell(f));
+  fseek(f, SizeOfOptionalHeader, SEEK_CUR); // пропустили Optional Header
+  //printf("shifted pos %ld\n", ftell(f));
+  fseek(f, 8, SEEK_CUR); // сместились ещё на 24 байта к началу Section Table
+  //printf("shifted pos %ld\n", ftell(f));
+  /**/
+  
+  section_table section;
+  for (int i = 0; i < NumberOfSections; i++) {
+    fseek(f, 16, SEEK_CUR);
+
+    //printf("cur pos %ld\n", ftell(f));
+    res = fread(&section.Name, sizeof(section.Name), 1, f);
+    if (res != 1)
+      return READ_ERROR;
+    exe->Section[i].Name = section.Name;
+
+    fseek(f, 8, SEEK_CUR); // сместились на 8 байт
+
+    //printf("cur pos %ld\n", ftell(f));
+    res = fread(&section.SizeOfRawData, sizeof(section.SizeOfRawData), 1, f);
+    if (res != 1)
+      return READ_ERROR;
+    exe->Section[i].SizeOfRawData = section.SizeOfRawData;
+
+    //printf("cur pos %ld\n", ftell(f));
+    res = fread(&section.PointerToRawData, sizeof(section.PointerToRawData), 1, f);
+    if (res != 1)
+      return READ_ERROR;
+    exe->Section[i].PointerToRawData = section.PointerToRawData;
+  }
+  fseek(f, 0, SEEK_SET);
 
   return EXE_SUCCESS;
 }
@@ -513,8 +585,11 @@ int print_exe_info(exe_info *exe) {
 		std::cout << "non classified 0x" << std::hex << exe->Machine << std::dec << std::endl;
 	}
 
+  printf("here ok 1\n");
   std::cout << "Number of Sections: " << exe->NumberOfSections << std::endl;
-	std::cout << "Timestamp: 0x" << std::hex << exe->TimeDateStamp << std::dec << std::endl;
+  printf("here ok 2\n");
+	std::cout << "Timestamp: "; epoch_to_human(exe->TimeDateStamp);
+  printf("here not ok obv\n");
 	std::cout << "Pointer to symbol table (zero): 0x" << std::hex << exe->PointerToSymbolTable << std::dec << std::endl;
 	std::cout << "Number of Symbols (zero): " << exe->NumberOfSymbols << std::endl;
   std::cout << "Size of Optional Header: " << exe->SizeOfOptionalHeader << std::endl;
@@ -597,7 +672,7 @@ int print_exe_info(exe_info *exe) {
   std::cout << "Size Of Uninitialized Data: " << exe->SizeOfUninitializedData << std::endl;
   std::cout << "Address Of Entry Point: 0x" << std::hex << exe->AddressOfEntryPoint << std::endl;
   std::cout << "Base Of Code: 0x" << exe->BaseOfCode << std::endl;
-  std::cout << "Base Of Data: 0x" << exe->BaseOfData << std::endl;
+  //std::cout << "Base Of Data: 0x" << exe->BaseOfData << std::endl;
   std::cout << "Image Base: 0x" << exe->ImageBase << std::dec << std::endl;
   std::cout << "Section Alignment: " << exe->SectionAlignment << std::endl;
   std::cout << "File Alignment: " << exe->FileAlignment << std::endl;
@@ -607,7 +682,7 @@ int print_exe_info(exe_info *exe) {
   std::cout << "Win32 Version Value: " << exe->Win32VersionValue << std::endl;
   std::cout << "Size Of Image: " << exe->SizeOfImage << std::endl;
   std::cout << "Size Of Headers: " << exe->SizeOfHeaders << std::endl;
-  std::cout << "Check Sum: " << exe->CheckSum << std::endl;
+  std::cout << "Check Sum: 0x" << std::hex << exe->CheckSum << std::dec << std::endl;
 
   std::cout << "Windows Subsystem: ";
   if (exe->Subsystem == 0) {
@@ -742,6 +817,13 @@ int print_exe_info(exe_info *exe) {
   std::cout << "Loader Flags: 0x" << std::hex << exe->LoaderFlags << std::dec << std::endl;
   std::cout << "Number Of RVA And Sizes: " << exe->NumberOfRvaAndSizes << std::endl;
   
+  for (int i = 0; i < exe->NumberOfSections; i++) {
+    std::cout << std::endl;
+    std::cout << "Section: " << exe->Section[i].Name << std::endl;
+    std::cout << "Size of Raw Data: " << exe->Section[i].SizeOfRawData << std::endl;
+    std::cout << "Pointer to Raw Data: 0x" << std::hex << exe->Section[i].PointerToRawData << std::dec << std::endl;
+  }
+
   return EXE_SUCCESS;
 }
 
