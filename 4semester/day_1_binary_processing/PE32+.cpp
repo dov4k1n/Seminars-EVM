@@ -1,38 +1,20 @@
 #include <iostream>
-#include <cstdint>
+#include <vector>
+#include <string>
 #include <cstdio>
-#include <time.h>
-
-void epoch_to_human(const time_t& rawtime) {
-  struct tm ts;
-  char buf[80];
-  printf("line 9\n");
-
-  // Format time, "ddd yyyy-mm-dd hh:mm:ss zzz"
-  // ~ weekday day-month-year hour:minute:second timezone
-  std::cout << rawtime << std::endl;
-  ts = *localtime(&rawtime);
-  printf("line 14\n");
-  strftime(buf, sizeof(buf), "%a %d.%m.%Y %H:%M:%S %Z", &ts);
-  printf("line 16\n");
-  printf("%s\n", buf);
-  printf("line 18\n");
-}
+#include <cstdint>
+#include <ctime>
 
 struct section_table {
-  // Section Table ~ Section Header.
-  // Each section header (section table entry) has
-  // the following format, for a total of 40 bytes per entry.
-
   uint64_t Name;
   //uint32_t VirtualSize;
   //uint32_t VirtualAddress;                // RVA address of section with code
   uint32_t SizeOfRawData;
-  uint32_t PointerToRawData;              // address to RAW data
+  uint32_t PointerToRawData;                // address of RAW data
   //uint32_t PointerToRelocations;
-  //uint32_t PointerToLinenumbers;
+  //uint32_t PointerTotextnumbers;
   //uint16_t NumberOfRelocations;
-  //uint16_t NumberOfLinenumbers;
+  //uint16_t NumberOftextnumbers;
   //uint32_t CharacteristicsSectionHeader;
 };
 
@@ -84,7 +66,6 @@ class exe_info {
     uint32_t BaseOfCode;                    // RVA (relative virtual address) sections with code
 
     // Windows Specific Fields
-    // uint32_t BaseOfData; (absent in PE32+)                    // RVA sections with data
     uint64_t ImageBase;                     // Preferable virtual address (multiple to 64kb, default 4mb)
     uint32_t SectionAlignment;              // Alignment in virtual memory (4 kilobytes)
     uint32_t FileAlignment;                 // Alignment in exe file (512kb)
@@ -107,7 +88,7 @@ class exe_info {
     uint32_t LoaderFlags;                   // unused (0x00000000)
     uint32_t NumberOfRvaAndSizes;           // number of elements in data_directories (16)
 
-    // Data Directories ~ array of structures and pointers and lengths
+    // Data Directories
     /*
     uint64_t ExportTable;                   // address and size of export table
     uint64_t ImportTable;                   // address and size of import table
@@ -128,17 +109,17 @@ class exe_info {
     */
     // end of Optional Header.
 
-    // Section Table ~ Section Header:
-    section_table* Section;
+    // Section Header:
+    std::vector<section_table> Section;
 };
 
-const int EXE_SUCCESS = 0;
-const int READ_ERROR = -1;
-const int NOT_EXE = -10;
-const int NOT_PE = -11;
-const int NOT_PE32plus = -12;
-
 int read_exe_info (exe_info *exe, FILE *f) {
+  const int EXE_SUCCESS = 0;
+  const int READ_ERROR = -1;
+  const int NOT_EXE = -2;
+  const int NOT_PE = -3;
+  const int NOT_PE32plus = -4;
+  
   fseek(f, 0, SEEK_SET);
   int res;
 
@@ -151,16 +132,15 @@ int read_exe_info (exe_info *exe, FILE *f) {
   exe->e_magic = e_magic;
   
   fseek(f, 60, SEEK_SET); // сместились на 60 байт, чтобы считать e_lfanew
+
   uint32_t e_lfanew;
   res = fread(&e_lfanew, sizeof(e_lfanew), 1, f);
   if (res != 1)
     return READ_ERROR;
   exe->e_lfanew = e_lfanew;
 
-  printf("cur pos %ld\n", ftell(f));
-  fseek(f, e_lfanew, SEEK_SET); // сместились к началу signature
-  printf("shifted pos %ld\n", ftell(f));
-
+  fseek(f, e_lfanew, SEEK_SET); // сместились по адресу e_lfanew
+  
   uint32_t Signature;
   res = fread(&Signature, sizeof(Signature), 1, f);
   if (res != 1)
@@ -260,12 +240,6 @@ int read_exe_info (exe_info *exe, FILE *f) {
   if (res != 1)
     return READ_ERROR;
   exe->BaseOfCode = BaseOfCode;
-  
-  /*uint32_t BaseOfData;
-  res = fread(&BaseOfData, sizeof(BaseOfData), 1, f);
-  if (res != 1)
-    return READ_ERROR;
-  exe->BaseOfData = BaseOfData;*/
 
   uint64_t ImageBase;
   res = fread(&ImageBase, sizeof(ImageBase), 1, f);
@@ -393,59 +367,59 @@ int read_exe_info (exe_info *exe, FILE *f) {
     return READ_ERROR;
   exe->NumberOfRvaAndSizes = NumberOfRvaAndSizes;
 
-  
-  
-  /*perfect
-  //printf("cur pos %ld\n", ftell(f));
-  fseek(f, e_lfanew, SEEK_SET);
-  //printf("shifted pos %ld\n", ftell(f));
-  fseek(f, SizeOfOptionalHeader, SEEK_CUR); // пропустили Optional Header
-  //printf("shifted pos %ld\n", ftell(f));
-  fseek(f, 8, SEEK_CUR); // сместились ещё на 24 байта к началу Section Table
-  //printf("shifted pos %ld\n", ftell(f));
-  */
-
-
-  /*shitty*/
-  //printf("cur pos %ld\n", ftell(f));
-  fseek(f, 4, SEEK_SET);
-  //printf("shifted pos %ld\n", ftell(f));
-  fseek(f, SizeOfOptionalHeader, SEEK_CUR); // пропустили Optional Header
-  //printf("shifted pos %ld\n", ftell(f));
-  fseek(f, 8, SEEK_CUR); // сместились ещё на 24 байта к началу Section Table
-  //printf("shifted pos %ld\n", ftell(f));
-  /**/
+  fseek(f, e_lfanew + SizeOfOptionalHeader + 8, SEEK_SET);
   
   section_table section;
   for (int i = 0; i < NumberOfSections; i++) {
     fseek(f, 16, SEEK_CUR);
 
-    //printf("cur pos %ld\n", ftell(f));
     res = fread(&section.Name, sizeof(section.Name), 1, f);
     if (res != 1)
       return READ_ERROR;
-    exe->Section[i].Name = section.Name;
 
-    fseek(f, 8, SEEK_CUR); // сместились на 8 байт
+    fseek(f, 8, SEEK_CUR);
 
-    //printf("cur pos %ld\n", ftell(f));
     res = fread(&section.SizeOfRawData, sizeof(section.SizeOfRawData), 1, f);
     if (res != 1)
       return READ_ERROR;
-    exe->Section[i].SizeOfRawData = section.SizeOfRawData;
 
-    //printf("cur pos %ld\n", ftell(f));
     res = fread(&section.PointerToRawData, sizeof(section.PointerToRawData), 1, f);
     if (res != 1)
       return READ_ERROR;
-    exe->Section[i].PointerToRawData = section.PointerToRawData;
+    
+    exe->Section.push_back(section);
   }
+  
   fseek(f, 0, SEEK_SET);
 
   return EXE_SUCCESS;
 }
 
-int print_exe_info(exe_info *exe) {
+std::string epoch_to_human(const time_t& rawtime) {
+  struct tm local_timezone;
+  char buf[80];
+
+  local_timezone = *localtime(&rawtime);
+
+  strftime(buf, sizeof(buf), "%a %d.%m.%Y %H:%M:%S %Z", &local_timezone);
+
+  return buf;
+}
+
+std::string uint64_to_text(const uint64_t& num) {
+  std::string result = "";
+
+  // Decode each 8-bit character by shifting right and masking with 0xFF
+  for (int i = 7; i >= 0; i--) {
+    uint8_t ch = (num >> (i * 8)) & 0xFF;
+    if (ch != 0) {
+      result = char(ch) + result;
+    }
+  }
+  return result;
+}
+
+void print_exe_info(exe_info *exe) {
 
 	std::cout << "\n" << "analysed:\n" << std::endl;
 
@@ -585,13 +559,10 @@ int print_exe_info(exe_info *exe) {
 		std::cout << "non classified 0x" << std::hex << exe->Machine << std::dec << std::endl;
 	}
 
-  printf("here ok 1\n");
   std::cout << "Number of Sections: " << exe->NumberOfSections << std::endl;
-  printf("here ok 2\n");
-	std::cout << "Timestamp: "; epoch_to_human(exe->TimeDateStamp);
-  printf("here not ok obv\n");
-	std::cout << "Pointer to symbol table (zero): 0x" << std::hex << exe->PointerToSymbolTable << std::dec << std::endl;
-	std::cout << "Number of Symbols (zero): " << exe->NumberOfSymbols << std::endl;
+	std::cout << "Timestamp: " << epoch_to_human(exe->TimeDateStamp) << std::endl;;
+	std::cout << "Pointer to symbol table: 0x" << std::hex << exe->PointerToSymbolTable << std::dec << std::endl;
+	std::cout << "Number of Symbols: " << exe->NumberOfSymbols << std::endl;
   std::cout << "Size of Optional Header: " << exe->SizeOfOptionalHeader << std::endl;
   
   std::cout << "Characteristics File Header: ";
@@ -604,7 +575,7 @@ int print_exe_info(exe_info *exe) {
   }
 
   else if (exe->CharacteristicsFileHeader == 0x0004) {
-    std::cout << "COFF line numbers have been removed." << std::endl;
+    std::cout << "COFF text numbers have been removed." << std::endl;
   }
 
   else if (exe->CharacteristicsFileHeader == 0x0008) {
@@ -672,7 +643,6 @@ int print_exe_info(exe_info *exe) {
   std::cout << "Size Of Uninitialized Data: " << exe->SizeOfUninitializedData << std::endl;
   std::cout << "Address Of Entry Point: 0x" << std::hex << exe->AddressOfEntryPoint << std::endl;
   std::cout << "Base Of Code: 0x" << exe->BaseOfCode << std::endl;
-  //std::cout << "Base Of Data: 0x" << exe->BaseOfData << std::endl;
   std::cout << "Image Base: 0x" << exe->ImageBase << std::dec << std::endl;
   std::cout << "Section Alignment: " << exe->SectionAlignment << std::endl;
   std::cout << "File Alignment: " << exe->FileAlignment << std::endl;
@@ -816,16 +786,75 @@ int print_exe_info(exe_info *exe) {
   std::cout << "Size Of Heap Commit: " << exe->SizeOfHeapCommit << std::endl;
   std::cout << "Loader Flags: 0x" << std::hex << exe->LoaderFlags << std::dec << std::endl;
   std::cout << "Number Of RVA And Sizes: " << exe->NumberOfRvaAndSizes << std::endl;
+  std::cout << std::endl;
   
   for (int i = 0; i < exe->NumberOfSections; i++) {
-    std::cout << std::endl;
-    std::cout << "Section: " << exe->Section[i].Name << std::endl;
+    std::cout << "Section: " << uint64_to_text(exe->Section[i].Name) << std::endl;
     std::cout << "Size of Raw Data: " << exe->Section[i].SizeOfRawData << std::endl;
     std::cout << "Pointer to Raw Data: 0x" << std::hex << exe->Section[i].PointerToRawData << std::dec << std::endl;
+    std::cout << std::endl;
+  }
+}
+
+std::vector<uint8_t> text_to_uint8vect(const std::string& text) {
+  std::vector<uint8_t> encoded;
+  for (char c : text) {
+    encoded.push_back(static_cast<uint8_t>(c));
+  }
+  return encoded;
+}
+
+std::string uint8vect_to_text(const std::vector<uint8_t>& encoded) {
+  std::string decoded;
+  for (uint8_t c : encoded) {
+    decoded += static_cast<char>(c);
+  }
+  return decoded;
+}
+
+int patch(FILE *f, exe_info *exe, const std::string& searching_text, const std::string& changeto_text) {
+  const int PATCH_SUCCESS = 0;
+  const int PATCH_READ_ERROR = -1;
+  const int PATCH_COMPARE_ERROR = -2;
+  
+  std::vector<uint8_t> searching_text_vect = text_to_uint8vect(searching_text);
+  std::vector<uint8_t> changeto_text_vect = text_to_uint8vect(changeto_text);
+
+	fseek(f, exe->Section[2].PointerToRawData, SEEK_SET);
+
+  uint8_t tmp8 = 0;
+  int res, counted_steps = 0;
+  while (tmp == 0) {
+    res = fread(&tmp8, sizeof(tmp8), 1, f);
+    if (res != 1)
+      return PATCH_READ_ERROR;
+    counted_steps++;
   }
 
-  return EXE_SUCCESS;
+  fseek(f, -1, SEEK_CUR);
+
+  std::vector<uint8_t> tmp8vect;
+  for (auto i = 0; i < exe->Section[2].SizeOfRawData - counted_steps; i += 8*searching_text.size()) {
+    for (auto j = 0; j < searching_text.size(); j++) {
+      res = fread(&tmp8, sizeof(tmp8), 1, f);
+      if (res != 1)
+        return PATCH_COMPARE_ERROR;
+      
+      tmp8vect.push_back(tmp8);
+    }
+
+    if (tmp8vect == searching_text_vect) {
+      break;
+    }
+
+    tmp8vect.clear();
+  }
+
+	// int ret = fwrite(changeto_text, sizeof(changeto_text), 1, f);
+
+  return PATCH_SUCCESS;
 }
+
 
 int main(int argc, char *argv[]) {
 	if (argc < 2) {
@@ -834,14 +863,14 @@ int main(int argc, char *argv[]) {
 		return -1;
 	}
 
-	FILE *f = fopen( argv[1], "rb");
+	FILE *f = fopen(argv[1], "rb");
 	if (f == NULL) {
 		std::cout << "Error openning file" << std::endl;
 		return -1;
 	}
 
 	exe_info exe;
-
+  
 	int ret;
 	if ( (ret = read_exe_info(&exe, f)) < 0 ) {
 		std::cout << "error reading exe file: " << ret << std::endl;
@@ -849,8 +878,27 @@ int main(int argc, char *argv[]) {
 		return -1;
 	}
 
+  fclose(f);
+  
 	print_exe_info(&exe);
 
+  std::cout << "what should i search for and change?" << std::endl;
+	std::string user_searching_text = "";
+	std::gettext(std::cin, user_searching_text);
+
+  std::cout << "change to what?" << std::endl;
+	std::string user_changeto_text = "";
+	std::gettext(std::cin, user_changeto_text);
+
+  FILE *f = fopen(argv[1], "wb");
+	if (f == NULL) {
+		std::cout << "Error openning file" << std::endl;
+		return -1;
+	}
+
+  //patch(f, &exe, user_searching_text, user_changeto_text);
+
 	fclose(f);
+
 	return 0;
 }
