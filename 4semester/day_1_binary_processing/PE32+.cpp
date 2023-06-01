@@ -824,7 +824,7 @@ int patch(FILE *f, exe_info *exe, const std::string& searching_text, const std::
 
   uint8_t tmp8 = 0;
   int res, counted_steps = 0;
-  while (tmp == 0) {
+  while (tmp8 == 0) {
     res = fread(&tmp8, sizeof(tmp8), 1, f);
     if (res != 1)
       return PATCH_READ_ERROR;
@@ -834,7 +834,7 @@ int patch(FILE *f, exe_info *exe, const std::string& searching_text, const std::
   fseek(f, -1, SEEK_CUR);
 
   std::vector<uint8_t> tmp8vect;
-  for (auto i = 0; i < exe->Section[2].SizeOfRawData - counted_steps; i += 8*searching_text.size()) {
+  for (auto i = 0; i < exe->Section[2].SizeOfRawData - 8*counted_steps; i += 8*searching_text.size()) {
     for (auto j = 0; j < searching_text.size(); j++) {
       res = fread(&tmp8, sizeof(tmp8), 1, f);
       if (res != 1)
@@ -884,11 +884,11 @@ int main(int argc, char *argv[]) {
 
   std::cout << "what should i search for and change?" << std::endl;
 	std::string user_searching_text = "";
-	std::gettext(std::cin, user_searching_text);
+	std::getline(std::cin, user_searching_text);
 
   std::cout << "change to what?" << std::endl;
 	std::string user_changeto_text = "";
-	std::gettext(std::cin, user_changeto_text);
+	std::getline(std::cin, user_changeto_text);
 
   FILE *f = fopen(argv[1], "wb");
 	if (f == NULL) {
