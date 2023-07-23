@@ -55,7 +55,6 @@ std::string decode(std::vector<uint64_t> blocks) {
   
   return result;
 }
-
 */
 
 /*
