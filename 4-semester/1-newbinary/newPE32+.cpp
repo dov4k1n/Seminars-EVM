@@ -140,7 +140,7 @@ struct exe_info {
 
 	// CFHTypes stands for Characteristics File Header Types
 	static const std::map<uint16_t, std::string>& getCFHTypes() {
-        static const std::map<uint16_t, std::string> CFHTypes = {
+		static const std::map<uint16_t, std::string> CFHTypes = {
             {0x0001, "Image only, Windows CE, and Microsoft Windows NT and later."},
 			{0x0002, "Image only."},
 			{0x0004, "COFF text numbers have been removed."},
