@@ -157,8 +157,8 @@ struct exe_info {
 			{0x2000, "The image file is a dynamic-link library (DLL)."},
 			{0x4000, "The file should be run only on a uniprocessor machine."},
 			{0x8000, "Big endian: the MSB precedes the LSB in memory."},
-        };
-        return CFHTypes;
+		};
+		return CFHTypes;
 	}
 
 	/*
