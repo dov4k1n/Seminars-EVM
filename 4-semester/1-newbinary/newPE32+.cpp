@@ -159,7 +159,7 @@ struct exe_info {
 			{0x8000, "Big endian: the MSB precedes the LSB in memory."},
         };
         return CFHTypes;
-    }
+	}
 
 	/*
 	 *
