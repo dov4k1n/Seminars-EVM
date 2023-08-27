@@ -15,7 +15,6 @@
 #include <cstdio>
 #include <cstdint>
 #include <ctime>
-#include <chrono>
 #include <map>
 
 std::string epoch_to_human(const time_t& rawtime) {
@@ -34,35 +33,19 @@ std::string uint64_to_text(const uint64_t& num) {
 
 	// Decode each 8-bit character by shifting right and masking with 0xFF
 	for (int i = 7; i >= 0; i--) {
-	uint8_t ch = (num >> (i * 8)) & 0xFF;
-	if (ch != 0) {
-		result = char(ch) + result;
-	}
+		uint8_t ch = (num >> (i * 8)) & 0xFF;
+		if (ch != 0) {
+			result = char(ch) + result;
+		}
 	}
 	return result;
 }
 
-std::vector<uint8_t> text_to_uint8vect(const std::string& text) {
-	std::vector<uint8_t> encoded;
-	for (char c : text) {
-	encoded.push_back(static_cast<uint8_t>(c));
-	}
-	return encoded;
-}
-
-std::string uint8vect_to_text(const std::vector<uint8_t>& encoded) {
-	std::string decoded;
-	for (uint8_t c : encoded) {
-	decoded += static_cast<char>(c);
-	}
-	return decoded;
-}
-
 struct section_table {
-	uint64_t Name;					 // Name of the section
+	uint64_t Name;                   // Name of the section
 	//uint32_t VirtualSize;
 	//uint32_t VirtualAddress;       // RVA address of section with code
-	uint32_t SizeOfRawData;			 // Size of data of section
+	uint32_t SizeOfRawData;          // Size of data of section
 	uint32_t PointerToRawData;       // address of RAW data
 	//uint32_t PointerToRelocations;
 	//uint32_t PointerTotextnumbers;
@@ -102,7 +85,7 @@ struct exe_info {
 
 	/*
 	 *
-	 * DOS Stub is NOT NEADED to read. Ends in e_lfanew address.
+	 * I skip DOS Stub. Ends in e_lfanew address.
 	 *
 	 */
 
@@ -112,7 +95,7 @@ struct exe_info {
 	 *
 	 */
 
-	uint32_t PE_Signature;  			// 0x00004550 (Portable Executable)
+	uint32_t PE_Signature;              // 0x00004550 (Portable Executable)
 	uint16_t Machine;                   // Architecture (intel 32 bit)
 	uint16_t NumberOfSections;          // Number of sections in Section Header
 	uint32_t TimeDateStamp;             // Date and Time of file creation
