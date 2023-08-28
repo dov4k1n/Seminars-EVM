@@ -1,5 +1,5 @@
 /*
- * Program to read Portable Executable 64 bit files (.exe) in binary format
+ * Program to read Portable Executable 64 bit files (.exe) in binary format.
  *
  * Sources:
  * 1. https://www.youtube.com/watch?v=-OzGawe9fmM&ab_channel=AlekOS
@@ -15,6 +15,13 @@
 #include <ctime>
 #include <map>
 
+
+/*
+ * Service function to convert EPOCH to human-readable date and time.
+ * It takes seconds elapsed since 1st January 1970 as an argument,
+ * for example "1693239608", and converts it to the format
+ * "Mon 28.08.2023 19:20:08".
+ */
 std::string epoch_to_human(const time_t& rawtime) {
 	struct tm local_timezone;
 	char buf[80];
@@ -26,6 +33,10 @@ std::string epoch_to_human(const time_t& rawtime) {
 	return buf;
 }
 
+/*
+ * Service function to convert uint64_t type to std::string.
+ * I use this function when printing Names of the sections from Section Table.
+ */
 std::string uint64_to_text(const uint64_t& num) {
 	std::string result = "";
 
@@ -39,6 +50,10 @@ std::string uint64_to_text(const uint64_t& num) {
 	return result;
 }
 
+/*
+ * Each section in Section Table has this format.
+ * I use std::vector consisting of these sections.
+ */
 struct section_table {
 	uint64_t Name;                   // Name of the section
 	//uint32_t VirtualSize;
@@ -52,6 +67,9 @@ struct section_table {
 	//uint32_t CharacteristicsSectionHeader;
 };
 
+/*
+ * This is the structure of each Portable Executable 64 bit .exe file.
+ */
 struct exe_info {
 	/*
 	 *
@@ -268,6 +286,10 @@ struct exe_info {
 	std::vector<section_table> Section;
 };
 
+/*
+ * Function for reading .exe file in binary mode and breaking down
+ * its information into meaningful chunks.
+ */
 int read_exe_info (exe_info *exe, FILE *f) {
 	const int EXE_SUCCESS = 0;
 	const int READ_ERROR = -1;
@@ -534,6 +556,9 @@ int read_exe_info (exe_info *exe, FILE *f) {
 	return EXE_SUCCESS;
 }
 
+/*
+ * Function for printing .exe file's information into command line.
+ */
 void print_exe_info(exe_info *exe) {
 
 	std::cout << "\n" << "analysed:\n" << std::endl;
@@ -575,6 +600,12 @@ void print_exe_info(exe_info *exe) {
 
 	std::cout << "Timestamp: "
 			  << epoch_to_human(exe->TimeDateStamp) << std::endl;
+
+	std::cout << "Timestamp RAW decimal: "
+			  << exe->TimeDateStamp << std::endl;
+
+	std::cout << "Timestamp RAW hex: " << std::hex
+			  << exe->TimeDateStamp << std::dec << std::endl;
 
 	std::cout << "Pointer to symbol table: 0x" << std::hex
 			  << exe->PointerToSymbolTable << std::dec << std::endl;
@@ -725,6 +756,11 @@ void print_exe_info(exe_info *exe) {
 	}
 }
 
+/*
+ * Main function takes as an argument name of the file that is
+ * needed to be analysed. Example of use after compilation
+ * ".\a.exe target_file.exe" or just ".\a.exe a.exe".
+ */
 int main(int argc, char *argv[]) {
 	if (argc < 2) {
 		std::cout << "Need an exe file!" << std::endl;
