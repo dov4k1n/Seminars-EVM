@@ -575,6 +575,12 @@ void print_exe_info(exe_info *exe) {
 
 	std::cout << "Timestamp: "
 			  << epoch_to_human(exe->TimeDateStamp) << std::endl;
+	
+	std::cout << "Timestamp RAW decimal: "
+			  << exe->TimeDateStamp << std::endl;
+
+	std::cout << "Timestamp RAW hex: " << std::hex
+			  << exe->TimeDateStamp << std::dec << std::endl;		  
 
 	std::cout << "Pointer to symbol table: 0x" << std::hex
 			  << exe->PointerToSymbolTable << std::dec << std::endl;

@@ -813,7 +813,6 @@ int main(int argc, char *argv[]) {
 	
 	print_exe_info(&exe);
 
-	/*
 	std::cout << "what should i search for and change?" << std::endl;
 	std::string user_searching_text = "";
 	std::getline(std::cin, user_searching_text);
@@ -822,16 +821,15 @@ int main(int argc, char *argv[]) {
 	std::string user_changeto_text = "";
 	std::getline(std::cin, user_changeto_text);
 
-	FILE *f = fopen(argv[1], "wb");
-	if (f == NULL) {
+	FILE *newf = fopen(argv[1], "wb");
+	if (newf == NULL) {
 		std::cout << "Error openning file" << std::endl;
 		return -1;
 	}
 
-	//patch(f, &exe, user_searching_text, user_changeto_text);
+	patch(newf, &exe, user_searching_text, user_changeto_text);
 
-	fclose(f);
-	*/
+	fclose(newf);
 
 	return 0;
 }
