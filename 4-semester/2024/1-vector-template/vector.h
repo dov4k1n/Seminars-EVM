@@ -3,9 +3,8 @@
 #define VECTOR_H
 
 #include <iostream>
-// #include <algorithm>
+#include <algorithm>
 #include <stdexcept>
-// #include <vector>
 
 template <class T> 
 class Vector {
@@ -25,6 +24,36 @@ public:
     void push_back(const T& element);
     void pop_back();
     void sort();
+
+    class iterator {
+    private:
+        T* ptr;
+
+    public:
+        iterator(T* p) : ptr(p) {}
+
+        T& operator*() const {
+            return *ptr;
+        }
+
+        iterator& operator++() {
+            ++ptr;
+            return *this;
+        }
+        
+        bool operator==(const iterator& other) const {
+            return ptr == other.ptr;
+        }
+
+        bool operator!=(const iterator& other) const {
+            return ptr != other.ptr;
+        }
+    };
+
+    iterator begin();
+    iterator end();
+    iterator begin() const;
+    iterator end() const;
 };
 
 #include "vector.cpp"

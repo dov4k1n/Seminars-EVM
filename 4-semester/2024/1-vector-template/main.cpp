@@ -3,26 +3,75 @@
 using std::cout;
 using std::endl;
 using std::cin;
+using std::string;
 
 int main() {
-    Vector<int> vector;
-    vector.push_back(10);
-    vector.push_back(5);
-    vector.push_back(8);
-    vector.push_back(2);
-    vector.push_back(7);
+    Vector<int> intVector;
+    Vector<string> stringVector;
 
-    cout << vector << endl;
-    while (cin >> vector) cout << vector << endl;
+    int intElement;
+    while (true) {
+        cout << "Enter a number (enter -1 to stop): ";
+
+        if (!(cin >> intElement)) {
+            cin.clear();
+            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            cout << "Invalid input. Please enter a number." << endl;
+            continue;
+        }
+
+        intVector.push_back(intElement);
+
+        if (intElement == -1) {
+            intVector.pop_back();
+            break;
+        }
+    }
+
+    cout << "intVector: ";
+    for (const auto& element : intVector) {
+        std::cout << element << " ";
+    }
     cout << endl;
 
-    // vector.sort();
+    string stringElement;
+    while (true) {
+        cout << "Enter a string (enter \"exit\" to stop): ";
 
-    // std::cout << "Sorted Vector: ";
-    // for (size_t i = 0; i < vector.getSize(); ++i) {
-    //     std::cout << vector[i] << " ";
-    // }
-    // std::cout << std::endl;
+        if (!(cin >> stringElement)) {
+            cin.clear();
+            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            cout << "Invalid input. Please enter a string." << endl;
+            continue;
+        }
+
+        stringVector.push_back(stringElement);
+
+        if (stringElement == "exit") {
+            stringVector.pop_back();
+            break;
+        }
+    }
+
+    cout << "stringVector: ";
+    for (const auto& element : stringVector) {
+        std::cout << element << " ";
+    }
+    cout << endl;
+
+    intVector.sort();
+    stringVector.sort();
+
+    cout << "sorted intVector: ";
+    for (const auto& element : intVector) {
+        std::cout << element << " ";
+    }
+    cout << endl;
+
+    cout << "sorted stringVector: ";
+    for (const auto& element : stringVector) {
+        std::cout << element << " ";
+    }
 
     return 0;
 }

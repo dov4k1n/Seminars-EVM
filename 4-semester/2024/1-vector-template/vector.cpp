@@ -53,18 +53,69 @@ void Vector<T>::push_back(const T& newElement) {
 }
 
 template <class T>
-std::ostream& operator<<(std::ostream& out, const Vector<T>& vector) {
-    for (int i = 0; i < vector.getSize() - 1; i++) {
-        out << vector[i] << " ";
+void Vector<T>::pop_back() {
+    if (size > 0) {
+        --size;
+
+        if (size < capacity / 2 && capacity > 1) {
+            capacity /= 2;
+
+            T* newData = new T[capacity];
+            for (int i = 0; i < size; i++) {
+                newData[i] = data[i];
+            }
+
+            delete[] data;
+            data = new T[capacity];
+            for (int i = 0; i < size; i++) {
+                data[i] = newData[i];
+            }
+            delete[] newData;
+        }
     }
-    out << vector[vector.getSize() - 1];
-    return out;
 }
 
 template <class T>
-std::istream& operator>>(std::istream& in, Vector<T>& vector) {
-    T newElement;
-    in >> newElement;
-    vector.push_back(newElement);
-    return in;
+typename Vector<T>::iterator Vector<T>::begin() {
+    return iterator(data);
 }
+
+template <class T>
+typename Vector<T>::iterator Vector<T>::end() {
+    return iterator(data + size);
+}
+
+template <class T>
+typename Vector<T>::iterator Vector<T>::begin() const {
+    return iterator(data);
+}
+
+template <class T>
+typename Vector<T>::iterator Vector<T>::end() const {
+    return iterator(data + size);
+}
+
+template <class T>
+void Vector<T>::sort() {
+    std::sort(data, data + size);
+}
+
+// template <class T>
+// std::ostream& operator<<(std::ostream& out, const Vector<T>& vector) {
+//     out << "[";
+//     for (const auto& element : vector) {
+//         out << element << ", ";
+//     }
+//     out << "]";
+//     return out;
+// }
+
+// template <class T>
+// std::istream& operator>>(std::istream& in, Vector<T>& vector) {
+//     // Assuming elements are separated by spaces
+//     T newElement;
+//     while (in >> newElement) {
+//         vector.push_back(newElement);
+//     }
+//     return in;
+// }
