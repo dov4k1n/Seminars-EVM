@@ -28,12 +28,6 @@ int main() {
         }
     }
 
-    cout << "intVector: ";
-    for (const auto& element : intVector) {
-        std::cout << element << " ";
-    }
-    cout << endl;
-
     string stringElement;
     while (true) {
         cout << "Enter a string (enter \"exit\" to stop): ";
@@ -53,25 +47,16 @@ int main() {
         }
     }
 
-    cout << "stringVector: ";
-    for (const auto& element : stringVector) {
-        std::cout << element << " ";
-    }
-    cout << endl;
+    intVector.print();
+    stringVector.print();
 
     intVector.sort();
     stringVector.sort();
 
-    cout << "sorted intVector: ";
-    for (const auto& element : intVector) {
-        std::cout << element << " ";
-    }
-    cout << endl;
+    cout << endl << "sorted: " << endl;
 
-    cout << "sorted stringVector: ";
-    for (const auto& element : stringVector) {
-        std::cout << element << " ";
-    }
+    intVector.print();
+    stringVector.print();
 
     return 0;
 }
