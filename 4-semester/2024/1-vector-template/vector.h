@@ -19,6 +19,7 @@ public:
 
     void push_back(const T& element);
     void pop_back();
+    void quicksort(T* start, T* end);
     void sort();
     void print();
 
@@ -90,13 +91,13 @@ void Vector<T>::push_back(const T& newElement) {
         capacity = (capacity == 0) ? 1 : capacity * 2;
 
         T* newData = new T[capacity];
-        for (int i = 0; i < size; i++) {
+        for (size_t i = 0; i < size; i++) {
             newData[i] = data[i];
         }
 
         if (data) delete[] data;
         data = new T[capacity];
-        for (int i = 0; i < size; i++) {
+        for (size_t i = 0; i < size; i++) {
             data[i] = newData[i];
         }
         delete[] newData;
@@ -114,13 +115,13 @@ void Vector<T>::pop_back() {
             capacity /= 2;
 
             T* newData = new T[capacity];
-            for (int i = 0; i < size; i++) {
+            for (size_t i = 0; i < size; i++) {
                 newData[i] = data[i];
             }
 
             delete[] data;
             data = new T[capacity];
-            for (int i = 0; i < size; i++) {
+            for (size_t i = 0; i < size; i++) {
                 data[i] = newData[i];
             }
             delete[] newData;
@@ -149,18 +150,35 @@ typename Vector<T>::iterator Vector<T>::end() const {
 }
 
 template <class T>
-void Vector<T>::sort() {
-    std::sort(data, data + size);
+void Vector<T>::quicksort(T* start, T* end) {
+    if (start < end) {
+        T* pivot = start;
+        T* left = start + 1;
+        T* right = end;
+
+        while (left <= right) {
+            while (left <= end && *left < *pivot) {
+                ++left;
+            }
+            while (right > start && *right >= *pivot) {
+                --right;
+            }
+            if (left < right) {
+                std::swap(*left, *right);
+            }
+        }
+
+        std::swap(*pivot, *right);
+
+        quicksort(start, right - 1);
+        quicksort(right + 1, end);
+    }
 }
 
-// template <class T>
-// void Vector<T>::print() {
-//     std::cout << "[";
-//     for (const auto& element : Vector) {
-//         std::cout << ", " << element;
-//     }
-//     std::cout << "]" << endl;
-// }
+template <class T>
+void Vector<T>::sort() {
+    quicksort(data, data + size - 1);
+}
 
 template <class T>
 void Vector<T>::print() {
@@ -176,23 +194,3 @@ void Vector<T>::print() {
     }
     std::cout << "]" << std::endl;
 }
-
-// template <class T>
-// std::ostream& operator<<(std::ostream& out, const Vector<T>& vector) {
-//     out << "[";
-//     for (const auto& element : vector) {
-//         out << element << ", ";
-//     }
-//     out << "]";
-//     return out;
-// }
-
-// template <class T>
-// std::istream& operator>>(std::istream& in, Vector<T>& vector) {
-//     // Assuming elements are separated by spaces
-//     T newElement;
-//     while (in >> newElement) {
-//         vector.push_back(newElement);
-//     }
-//     return in;
-// }
