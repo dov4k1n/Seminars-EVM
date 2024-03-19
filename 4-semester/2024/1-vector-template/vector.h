@@ -23,6 +23,13 @@ public:
     void sort();
     void print();
 
+    bool operator==(const Vector& other) const;
+    bool operator!=(const Vector& other) const;
+    bool operator<=(const Vector& other) const;
+    bool operator<(const Vector& other) const;
+    bool operator>=(const Vector& other) const;
+    bool operator>(const Vector& other) const;
+
     class iterator {
     private:
         T* ptr;
@@ -193,4 +200,45 @@ void Vector<T>::print() {
         ++it;
     }
     std::cout << "]" << std::endl;
+}
+
+template <class T>
+bool Vector<T>::operator==(const Vector& other) const {
+    if (size != other.getSize())
+        return false;
+
+    auto it = begin();
+    auto it_other = other.begin();
+
+    while (it != end() && it.other != other.end()) {
+        if (*it != *it_other)
+            return false;
+    }
+
+    return true;
+}
+
+template <class T>
+bool Vector<T>::operator!=(const Vector& other) const {
+
+}
+
+template <class T>
+bool Vector<T>::operator<=(const Vector& other) const {
+
+}
+
+template <class T>
+bool Vector<T>::operator<(const Vector& other) const {
+
+}
+
+template <class T>
+bool Vector<T>::operator>=(const Vector& other) const {
+
+}
+
+template <class T>
+bool Vector<T>::operator>(const Vector& other) const {
+
 }
