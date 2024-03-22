@@ -133,11 +133,13 @@ void Vector<T>::push_back(const T& newElement) {
             newData[i] = data[i];
         }
 
-        if (data) delete[] data;
+        delete[] data;
+        
         data = new T[capacity];
         for (size_t i = 0; i < size; i++) {
             data[i] = newData[i];
         }
+        
         delete[] newData;
     }
 
@@ -158,10 +160,12 @@ void Vector<T>::pop_back() {
             }
 
             delete[] data;
+            
             data = new T[capacity];
             for (size_t i = 0; i < size; i++) {
                 data[i] = newData[i];
             }
+            
             delete[] newData;
         }
     }

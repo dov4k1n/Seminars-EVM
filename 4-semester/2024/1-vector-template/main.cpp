@@ -100,5 +100,9 @@ int main() {
     vectorVector.pop_back();
     cout << endl << vectorVector << endl;
 
+    Vector<int> intVector3;
+    intVector3 = intVector1;
+    cout << endl << intVector3 << endl << endl;
+
     return 0;
 }
