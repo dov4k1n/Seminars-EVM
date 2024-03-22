@@ -12,23 +12,28 @@ private:
 public:
     Vector();
     ~Vector();
+    Vector(Vector const& copy);
+    Vector& operator=(const Vector& other);
 
     size_t getSize() const;
+    size_t getCapacity() const;
     T& operator[](size_t index);
     T& operator[](size_t index) const;
 
-    void push_back(const T& element);
+    void push_back(const T& newElement);
     void pop_back();
     void quicksort(T* start, T* end);
     void sort();
-    void print();
+    
+    template <class U>
+    friend std::ostream& operator<<(std::ostream& out, const Vector<U>& vector);
 
     bool operator==(const Vector& other) const;
-    bool operator!=(const Vector& other) const;
-    bool operator<=(const Vector& other) const;
-    bool operator<(const Vector& other) const;
-    bool operator>=(const Vector& other) const;
     bool operator>(const Vector& other) const;
+    bool operator<(const Vector& other) const;
+    bool operator!=(const Vector& other) const;
+    bool operator>=(const Vector& other) const;
+    bool operator<=(const Vector& other) const;
 
     class iterator {
     private:
@@ -65,15 +70,41 @@ template <class T>
 Vector<T>::Vector() : data(nullptr), size(0), capacity(0) {}
 
 template <class T>
-Vector<T>::~Vector() {
-    if (data) {
-        delete[] data;
+Vector<T>::~Vector() { delete[] data; }
+
+template <class T>
+Vector<T>::Vector(const Vector& other) : 
+    size(other.size), 
+    capacity(other.capacity) 
+{
+    data = new T[capacity];
+    for (size_t i = 0; i < size; ++i) {
+        data[i] = other.data[i];
     }
+}
+
+template <class T>
+Vector<T>& Vector<T>::operator=(const Vector& other) {
+    if (this != &other) {
+        size = other.size;
+        capacity = other.capacity;
+        delete[] data;
+        data = new T[capacity];
+        for (size_t i = 0; i < size; ++i) {
+            data[i] = other.data[i];
+        }
+    }
+    return *this;
 }
 
 template <class T>
 size_t Vector<T>::getSize() const {
     return size;
+}
+
+template <class T>
+size_t Vector<T>::getCapacity() const {
+    return capacity;
 }
 
 template <class T>
@@ -188,57 +219,85 @@ void Vector<T>::sort() {
 }
 
 template <class T>
-void Vector<T>::print() {
-    std::cout << "[";
-    auto it = begin();
-    if (it != end()) {
-        std::cout << *it;
+std::ostream& operator<<(std::ostream& out, const Vector<T>& vector) {
+    out << "[";
+
+    auto it = vector.begin();
+
+    if (it != vector.end()) {
+        out << *it;
         ++it;
     }
-    while (it != end()) {
-        std::cout << ", " << *it;
+
+    while (it != vector.end()) {
+        out << ", " << *it;
         ++it;
     }
-    std::cout << "]" << std::endl;
+
+    out << "]";
+
+    return out;
 }
 
 template <class T>
 bool Vector<T>::operator==(const Vector& other) const {
-    if (size != other.getSize())
+    if (size != other.size)
         return false;
-
+    
     auto it = begin();
     auto it_other = other.begin();
-
-    while (it != end() && it.other != other.end()) {
+    
+    while (it != end() && it_other != other.end()) {
         if (*it != *it_other)
             return false;
+        ++it;
+        ++it_other;
     }
-
+    
     return true;
 }
 
 template <class T>
-bool Vector<T>::operator!=(const Vector& other) const {
+bool Vector<T>::operator>(const Vector& other) const {
+    auto it = begin();
+	auto it_other = other.begin();
+	
+    while (it != end() && it_other != other.end()) {
+		if (*it != *it_other)
+			return *it > *it_other;
+		++it;
+		++it_other;
+	}
 
-}
-
-template <class T>
-bool Vector<T>::operator<=(const Vector& other) const {
-
+	return (it != end() && it_other == other.end());
 }
 
 template <class T>
 bool Vector<T>::operator<(const Vector& other) const {
+    auto it = begin();
+	auto it_other = other.begin();
+	
+    while (it != end() && it_other != other.end()) {
+		if (*it != *it_other)
+			return *it < *it_other;
+		++it;
+		++it_other;
+	}
 
+	return (it == end() && it_other != other.end());
+}
+
+template <class T>
+bool Vector<T>::operator!=(const Vector& other) const {
+    return !(*this == other);
 }
 
 template <class T>
 bool Vector<T>::operator>=(const Vector& other) const {
-
+    return !(*this < other);
 }
 
 template <class T>
-bool Vector<T>::operator>(const Vector& other) const {
-
+bool Vector<T>::operator<=(const Vector& other) const {
+    return !(*this > other);
 }
