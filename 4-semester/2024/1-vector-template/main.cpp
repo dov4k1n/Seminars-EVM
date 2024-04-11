@@ -7,102 +7,102 @@ using std::cin;
 using std::string;
 
 int main() {
-    Vector<int> intVector1;
-    Vector<int> intVector2;
-    Vector<string> stringVector;
+  Vector<int> intVector1;
+  Vector<int> intVector2;
+  Vector<string> stringVector;
 
-    int intElement;
-    while (true) {
-        cout << "Enter a number for intVector1 (enter -1 to stop): ";
+  int intElement;
+  while (true) {
+    cout << "Enter a number for intVector1 (enter -1 to stop): ";
 
-        if (!(cin >> intElement)) {
-            cin.clear();
-            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            cout << "Invalid input. Please enter a number." << endl;
-            continue;
-        }
-
-        intVector1.push_back(intElement);
-
-        if (intElement == -1) {
-            intVector1.pop_back();
-            break;
-        }
+    if (!(cin >> intElement)) {
+      cin.clear();
+      cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+      cout << "Invalid input. Please enter a number." << endl;
+      continue;
     }
 
-    while (true) {
-        cout << "Enter a number for intVector2	(enter -1 to stop): ";
+    intVector1.push_back(intElement);
 
-        if (!(cin >> intElement)) {
-            cin.clear();
-            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            cout << "Invalid input. Please enter a number." << endl;
-            continue;
-        }
+    if (intElement == -1) {
+      intVector1.pop_back();
+      break;
+    }
+  }
 
-        intVector2.push_back(intElement);
+  while (true) {
+    cout << "Enter a number for intVector2	(enter -1 to stop): ";
 
-        if (intElement == -1) {
-            intVector2.pop_back();
-            break;
-        }
+    if (!(cin >> intElement)) {
+      cin.clear();
+      cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+      cout << "Invalid input. Please enter a number." << endl;
+      continue;
     }
 
-    string stringElement;
-    while (true) {
-        cout << "Enter a string (enter \"exit\" to stop): ";
+    intVector2.push_back(intElement);
 
-        if (!(cin >> stringElement)) {
-            cin.clear();
-            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            cout << "Invalid input. Please enter a string." << endl;
-            continue;
-        }
+    if (intElement == -1) {
+      intVector2.pop_back();
+      break;
+    }
+  }
 
-        stringVector.push_back(stringElement);
+  string stringElement;
+  while (true) {
+    cout << "Enter a string (enter \"exit\" to stop): ";
 
-        if (stringElement == "exit") {
-            stringVector.pop_back();
-            break;
-        }
+    if (!(cin >> stringElement)) {
+      cin.clear();
+      cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+      cout << "Invalid input. Please enter a string." << endl;
+      continue;
     }
 
-    cout << endl << intVector1 << endl << intVector2 << endl << stringVector << endl;
+    stringVector.push_back(stringElement);
 
-    cout << endl;
-    if (intVector1 <= intVector2) 
-	    cout << "intVector1 <= intVector2" << endl;
-    if (intVector1 < intVector2)
-	    cout << "intVector1 < intVector2" << endl; 
-    if (intVector1 >= intVector2)
-            cout << "intVector1 >= intVector2" << endl;
-    if (intVector1 > intVector2)
-            cout << "intVector1 > intVector2" << endl;
-    if (intVector1 == intVector2)
-            cout << "intVector1 == intVector2" << endl;
-    if (intVector1 != intVector2)
-            cout << "intVector1 != intVector2" << endl;
+    if (stringElement == "exit") {
+      stringVector.pop_back();
+      break;
+    }
+  }
 
-    Vector<Vector<int>> vectorVector;
-    vectorVector.push_back(intVector1);
-    vectorVector.push_back(intVector2);
+  cout << endl << intVector1 << endl << intVector2 << endl << stringVector << endl;
 
-    cout << endl << vectorVector << endl;
-    
-    intVector1.sort();
-    intVector2.sort();
-    stringVector.sort();
-    vectorVector.sort();
+  cout << endl;
+  if (intVector1 <= intVector2) 
+	  cout << "intVector1 <= intVector2" << endl;
+  if (intVector1 < intVector2)
+	  cout << "intVector1 < intVector2" << endl; 
+  if (intVector1 >= intVector2)
+      cout << "intVector1 >= intVector2" << endl;
+  if (intVector1 > intVector2)
+      cout << "intVector1 > intVector2" << endl;
+  if (intVector1 == intVector2)
+      cout << "intVector1 == intVector2" << endl;
+  if (intVector1 != intVector2)
+      cout << "intVector1 != intVector2" << endl;
 
-    cout << endl << "sorted: " << endl;
-    cout << endl << intVector1 << endl << intVector2 << endl << stringVector << endl << vectorVector << endl;
+  Vector<Vector<int>> vectorVector;
+  vectorVector.push_back(intVector1);
+  vectorVector.push_back(intVector2);
 
-    vectorVector.pop_back();
-    cout << endl << vectorVector << endl;
+  cout << endl << vectorVector << endl;
+  
+  intVector1.sort();
+  intVector2.sort();
+  stringVector.sort();
+  vectorVector.sort();
 
-    Vector<int> intVector3;
-    intVector3 = intVector1;
-    cout << endl << intVector3 << endl << endl;
+  cout << endl << "sorted: " << endl;
+  cout << endl << intVector1 << endl << intVector2 << endl << stringVector << endl << vectorVector << endl;
 
-    return 0;
+  vectorVector.pop_back();
+  cout << endl << vectorVector << endl;
+
+  Vector<int> intVector3;
+  intVector3 = intVector1;
+  cout << endl << intVector3 << endl << endl;
+
+  return 0;
 }
