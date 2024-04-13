@@ -3,10 +3,11 @@
 #include <math.h>
 #include <time.h>
 
-int gen(FILE *in, int m, int n, int ch) {
+int generate_matrix(FILE *in, int m, int n, int ch) {
   int i, j;
   double tmp;
-  if (ch) {
+
+  if (ch == 1) {
     for (i = 0; i < m; i++) {
       for (j = 0; j < n; j++) {
         if (scanf("%lf", &tmp) != 1)
@@ -18,7 +19,7 @@ int gen(FILE *in, int m, int n, int ch) {
     return 0;
   }
 
-  else{
+  else if (ch == 2) {
     srand(time(NULL));
     for (i = 0; i < m; i++) {
       for (j = 0; j < n; j++) {
@@ -34,7 +35,7 @@ int gen(FILE *in, int m, int n, int ch) {
   return 1;
 }
 
-int load(double **A, FILE *in, int m, int n) {
+int load_matrix(double **A, FILE *in, int m, int n) {
   int i, j;
   for (i = 0; i < m; i++) {
     for (j = 0; j < n; j++)
@@ -83,6 +84,58 @@ int killdown_column(double **A, int leadi, int coli, int m, int n) {
   return leadi;
 }
 
+int new_row_echelon_form(double **A, int m, int n) {
+  int rank = fmin(m, n);
+  int h = 0; // Initialization of the pivot row
+  int k = 0; // Initialization of the pivot column
+  double max_value = 0.0001;
+  int max_value_row_index = 0;
+
+  while (h < m && k < n-1) {
+    // Find the k-th pivot:
+    for (int i = h; i < m; i++) {
+      if (fabs(A[i][k]) > max_value) {
+        max_value = fabs(A[i][k]);
+        max_value_row_index = i; 
+      }
+    }
+
+    if (max_value == 0.0001) {
+      // No pivot in this column, pass to next column
+      k += 1;
+      if (rank > 0) rank -= 1;
+    } 
+
+    else {
+      if (max_value < 0) {
+        for (int j = 0; j < n; j++) {
+          A[max_value_row_index][j] *= -1;
+        }
+      }
+
+      swap_rows(A, h, max_value_row_index);
+      //h = max_value_row_index;
+
+      // Do for all rows below pivot:
+      for (int i = h + 1; i < m; i++) {
+        double f = A[i][k] / A[h][k];
+        // Fill with zeros the lower part of pivot column:
+        A[i][k] = 0;
+        // Do for all remaining elements in current row:
+        for (int j = k + 1; j < n; j++) {
+          A[i][j] -= A[h][j] * f;
+        }
+      }
+
+      // Increase pivot row and column
+      h += 1;
+      k += 1;
+    }
+  }
+
+  return rank;
+}
+
 int row_echelon_form(double **A, int m, int n) {
   // coli ~ column_index
   int leadi = 0; // leadi ~ leader_index
@@ -111,7 +164,10 @@ void normalize_row(double **A, int m, int n, int rowi) {
       break;
     }
 }
- 
+
+/* 
+ * Requires row echelon form of matrix A 
+ */  
 void reduced_row_echelon_form(double **A, int m, int n, int *perm) {
   int flag, rowi, coli, i;
   for (rowi = m-1; rowi >= 0; rowi--) { //killing cols
@@ -144,16 +200,25 @@ void reduced_row_echelon_form(double **A, int m, int n, int *perm) {
       normalize_row(A, m, n, rowi);
 }
 
-void find_root(double **A, int n, int leadi, double *root) {
+/* 
+ * Requires reduced row echelon form of matrix A 
+ */ 
+double *find_root(const double * const *A, const int n, const int rank) {
   int i, j;
-  for (i = 0; i < leadi; i++) {
-    root[i] = A[i][n-1];
-    for (j = leadi; j < n-1; j++)
-      root[i] -= A[i][j];
+  double *root = (double*)malloc((n-1)*sizeof(double));
+  if (root == NULL) {
+    return NULL;
   }
 
-  for (i = leadi; i < n-1; i++)
+  for (i = 0; i < rank; i++) {
+    root[i] = A[i][n-1];
+    for (j = rank; j < n-1; j++)
+      root[i] -= A[i][j];
+  }
+  for (i = rank; i < n-1; i++)
     root[i] = 1;
+
+  return root;
 }
 
 void nullspace(double **A, int n, int leadi, int it, double *root) {
@@ -166,6 +231,10 @@ void nullspace(double **A, int n, int leadi, int it, double *root) {
   for (i = leadi; i < n-1; i++)
     root[i] = 0;
   root[j] = 1;
+}
+
+int check_answer(double **B, int m, int n, double *root) {
+
 }
 
 int main() {
@@ -194,7 +263,7 @@ int main() {
   if (ch)
     printf("enter augmented %dx%d matrix's elements:\n", m, n);
   
-  if (gen(in, m, n, ch)) {
+  if (generate_matrix(in, m, n, ch)) {
     printf("error: problem with typing elements\n");
     fclose(in);
     return -1;
@@ -219,8 +288,25 @@ int main() {
     }
   }
 
+  double **B;
+  B = (double**)malloc(m*sizeof(double*));
+  if (B == NULL) {
+    printf("error: couldn't create array B\n");
+    return -1;
+  }
+  for (i = 0; i < m; i++) {
+    B[i] = (double*)malloc(n*sizeof(double));
+    if (B[i] == NULL) {
+      printf("error: couldn't create array B[%d]\n", i);
+      for (j = 0; j < i; j++)
+        free(B[j]);
+      free(B);
+      return -1;
+    }
+  }
+
   in = fopen("input.txt", "rt");
-  if (load(A, in, m, n)) {
+  if (load_matrix(A, in, m, n)) {
     for (i = 0; i < m; i++)
       free(A[i]);
     free(A);
@@ -236,18 +322,18 @@ int main() {
     printf("\t|\t%.2lf\n", A[i][n-1]);
   }
 
-  int leadi = row_echelon_form(A, m, n);
+  int rank = row_echelon_form(A, m, n);
 
-  printf("\nrank = %d, row echelon form:\n", leadi);
+  printf("\nrank = %d, row echelon form:\n", rank);
   for (i = 0; i < m; i++) {
     for (j = 0; j < n-1; j++)
       printf("\t%.2lf", A[i][j]);
     printf("\t|\t%.2lf\n", A[i][n-1]);
   }
 
-  for (i = leadi; i < m; i++)
+  for (i = rank; i < m; i++)
     if (A[i][n-1] != 0) { //we got equation like 0 = b, where b != 0
-      printf("\nno solution\n");//for wide matrix A[leadi+][n-1] will be incorrect, so ok
+      printf("\nno solution\n");//for wide matrix A[rank+][n-1] will be incorrect, so ok
       for (i = 0; i < m; i++)
         free(A[i]);
       free(A);
@@ -274,17 +360,18 @@ int main() {
     printf("\t|\t%.2lf\n", A[i][n-1]);
   }
 
-  double *root;
-  root = (double*)malloc((n-1)*sizeof(double));
+  // double *root;
+  // root = (double*)malloc((n-1)*sizeof(double));
+
+  double *root = find_root(A, n, rank);
+
   if (root == NULL) {
-    printf("couldn't create root\n");
+    printf("erorr: root is NULL\n");
     for (i = 0; i < m; i++)
         free(A[i]);
-      free(A);
-      return -1;
+    free(A);
+    return -1;
   }
-
-  find_root(A, n, leadi, root);
 
   printf("\nsolution of augmented matrix:\nv0: ");
   for (i = 0; i < n-1; i++)
