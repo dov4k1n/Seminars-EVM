@@ -19,7 +19,7 @@ int generate_matrix(FILE *in, int m, int n, int ch) {
     return 0;
   }
 
-  else if (ch == 2) {
+  else if (ch == 0) {
     srand(time(NULL));
     for (i = 0; i < m; i++) {
       for (j = 0; j < n; j++) {
@@ -82,58 +82,6 @@ int killdown_column(double **A, int leadi, int coli, int m, int n) {
       return leadi; // leadi increases -> moving to the next row's leader
     }
   return leadi;
-}
-
-int new_row_echelon_form(double **A, int m, int n) {
-  int rank = fmin(m, n);
-  int h = 0; // Initialization of the pivot row
-  int k = 0; // Initialization of the pivot column
-  double max_value = 0.0001;
-  int max_value_row_index = 0;
-
-  while (h < m && k < n-1) {
-    // Find the k-th pivot:
-    for (int i = h; i < m; i++) {
-      if (fabs(A[i][k]) > max_value) {
-        max_value = fabs(A[i][k]);
-        max_value_row_index = i; 
-      }
-    }
-
-    if (max_value == 0.0001) {
-      // No pivot in this column, pass to next column
-      k += 1;
-      if (rank > 0) rank -= 1;
-    } 
-
-    else {
-      if (max_value < 0) {
-        for (int j = 0; j < n; j++) {
-          A[max_value_row_index][j] *= -1;
-        }
-      }
-
-      swap_rows(A, h, max_value_row_index);
-      //h = max_value_row_index;
-
-      // Do for all rows below pivot:
-      for (int i = h + 1; i < m; i++) {
-        double f = A[i][k] / A[h][k];
-        // Fill with zeros the lower part of pivot column:
-        A[i][k] = 0;
-        // Do for all remaining elements in current row:
-        for (int j = k + 1; j < n; j++) {
-          A[i][j] -= A[h][j] * f;
-        }
-      }
-
-      // Increase pivot row and column
-      h += 1;
-      k += 1;
-    }
-  }
-
-  return rank;
 }
 
 int row_echelon_form(double **A, int m, int n) {
@@ -203,7 +151,7 @@ void reduced_row_echelon_form(double **A, int m, int n, int *perm) {
 /* 
  * Requires reduced row echelon form of matrix A 
  */ 
-double *find_root(const double * const *A, const int n, const int rank) {
+double *find_root(double **A, const int n, const int rank) {
   int i, j;
   double *root = (double*)malloc((n-1)*sizeof(double));
   if (root == NULL) {
@@ -231,10 +179,6 @@ void nullspace(double **A, int n, int leadi, int it, double *root) {
   for (i = leadi; i < n-1; i++)
     root[i] = 0;
   root[j] = 1;
-}
-
-int check_answer(double **B, int m, int n, double *root) {
-
 }
 
 int main() {
@@ -326,9 +270,18 @@ int main() {
 
   printf("\nrank = %d, row echelon form:\n", rank);
   for (i = 0; i < m; i++) {
-    for (j = 0; j < n-1; j++)
-      printf("\t%.2lf", A[i][j]);
-    printf("\t|\t%.2lf\n", A[i][n-1]);
+    for (j = 0; j < n - 1; j++) {
+      if (fabs(A[i][j]) < 0.0001) {
+        printf("\t....");
+      } else {
+        printf("\t%.2lf", A[i][j]);
+      }
+    }
+    if (fabs(A[i][n - 1]) < 0.0001) {
+      printf("\t|\t....\n");
+    } else {
+      printf("\t|\t%.2lf\n", A[i][n - 1]);
+    }
   }
 
   for (i = rank; i < m; i++)
@@ -355,9 +308,18 @@ int main() {
 
   printf("\nreduced row echelon form:\n");
   for (i = 0; i < m; i++) {
-    for (j = 0; j < n-1; j++)
-      printf("\t%.2lf", A[i][j]);
-    printf("\t|\t%.2lf\n", A[i][n-1]);
+    for (j = 0; j < n - 1; j++) {
+      if (fabs(A[i][j]) < 0.0001) {
+        printf("\t....");
+      } else {
+        printf("\t%.2lf", A[i][j]);
+      }
+    }
+    if (fabs(A[i][n - 1]) < 0.0001) {
+      printf("\t|\t....\n");
+    } else {
+      printf("\t|\t%.2lf\n", A[i][n - 1]);
+    }
   }
 
   // double *root;
@@ -378,9 +340,9 @@ int main() {
     printf("\t%.2lf", root[i]);
   printf("\n");
 
-  printf("\nkernel dimension = %d:\n", n-1-leadi);
-  for (j = 0; j < n-1-leadi; j++) {
-    nullspace(A, n, leadi, j, root);
+  printf("\nkernel dimension = %d, nullspace basis:\n", n - 1 - rank);
+  for (j = 0; j < n - 1 - rank; j++) {
+    nullspace(A, n, rank, j, root);
     printf("v%d: ", j+1);
     for (i = 0; i < n-1; i++)
       printf("\t%.2lf", root[perm[i]]);

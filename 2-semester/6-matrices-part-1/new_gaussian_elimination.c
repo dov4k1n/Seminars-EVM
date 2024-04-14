@@ -3,9 +3,12 @@
 #include <math.h>
 #include <time.h>
 
+// #define 0.0001 0.0001
+
 typedef struct {
   int rows;
   int cols;
+  int rank;
   double **data;
 } matrix;
 
@@ -100,13 +103,13 @@ void print_matrix(matrix *mat) {
   int i, j;
   for (i = 0; i < mat->rows; i++) {
     for (j = 0; j < mat->cols - 1; j++) {
-      if (mat->data[i][j] == 0.0) {
+      if (fabs(mat->data[i][j]) < 0.0001) {
         printf("\t....");
       } else {
         printf("\t%.2lf", mat->data[i][j]);
       }
     }
-    if (mat->data[i][mat->cols - 1] == 0.0) {
+    if (fabs(mat->data[i][mat->cols - 1]) < 0.0001) {
       printf("\t|\t....\n");
     } else {
       printf("\t|\t%.2lf\n", mat->data[i][mat->cols - 1]);
@@ -120,6 +123,18 @@ void swap_rows(matrix *A, int i, int j) {
   A->data[j] = tmp;
 }
 
+void scale_row(matrix *mat, int row, double scalar) {
+  for (int j = 0; j < mat->cols; j++) {
+    mat[row][j] *= scalar;
+  }
+}
+
+void add_scaled_row(matrix *mat, int src_row, int dest_row, double scalar) {
+  for (int j = 0; j < mat->cols; j++) {
+    mat[dest_row][j] += scalar * mat[src_row][j];
+  }
+}
+
 // void swap_columns(double **A, int colsize, int i, int j) {
 //   double tmp;
 //   for (int k = 0; k < colsize; k++) {
@@ -129,30 +144,12 @@ void swap_rows(matrix *A, int i, int j) {
 //   }
 // }
 
-// void clean_under_2(double **A, int a, int b, int c, int n) { // eliminating number under leader of a
-//   double alpha = A[b][c] / A[a][c];
-//   for (int j = 0; j < n; j++) { // j ~ columns
-//     A[b][j] -= alpha * A[a][j]; // substracting rows
-//     if (fabs(A[b][j]) < 0.0001 && A[b][j] < 0)
-//       A[b][j] *= -1;
-//   }
-// }
-
-// int killdown_column(double **A, int leadi, int coli, int m, int n) {
-//   int i, j;
-//   for (i = leadi; i < m; i++)
-//     if (fabs(A[i][coli]) > 0.0001) { // found leader
-//       swap_rows(A, leadi, i);
-//       leadi++;
-//       for (j = leadi; j < m; j++) // killing numbers under leader
-//         clean_under_2(A, leadi-1, j, coli, n); // j ~ index of a row
-//       return leadi; // leadi increases -> moving to the next row's leader
-//     }
-//   return leadi;
-// }
-
-int new_row_echelon_form(matrix *A) {
-  int rank = 0;
+/*
+ * Source:
+ * https://en.wikipedia.org/wiki/Gaussian_elimination#:~:text=order%2D2%20tensors).-,Pseudocode%5Bedit%5D,-As%20explained%20above
+ */
+void new_row_echelon_form(matrix *A) {
+  A->rank = 0;
   int h = 0; // Initialization of the pivot row
   int k = 0; // Initialization of the pivot column
   double max_value;
@@ -176,17 +173,11 @@ int new_row_echelon_form(matrix *A) {
     } 
 
     else {
-      if (max_value < 0) {
-        for (int j = 0; j < A->cols; j++) {
-          A->data[max_value_row_index][j] *= -1;
-        }
-      }
-
       if (max_value_row_index != h) {
         swap_rows(A, h, max_value_row_index);
       }
 
-      rank += 1;
+      A->rank += 1;
 
       // Do for all rows below pivot:
       for (int i = h + 1; i < A->rows; i++) {
@@ -204,73 +195,66 @@ int new_row_echelon_form(matrix *A) {
       k += 1;
     }
   }
-
-  return rank;
 }
 
-// int row_echelon_form(double **A, int m, int n) {
-//   // coli ~ column_index
-//   int leadi = 0; // leadi ~ leader_index
-//   for (int coli = 0; coli < n-1; coli++)
-//     leadi = killdown_column(A, leadi, coli, m, n);
-//   return leadi; // leadi ~ rank
-// }
+void reduced_row_echelon_form(matrix *A) {
+  int h = A->rank - 1; // Initialization of the pivot row
+  int k = 0; // Initialization of the pivot column
+  double max_value;
+  int max_value_row_index;
 
-// void killup_column(double **A, int rowi, int coli, int m, int n) { // cleans up column
-//   int nrowi;
-//   for (nrowi = rowi-1; nrowi >= 0; nrowi--) {
-//     clean_under_2(A, rowi, nrowi, coli, n); // substracts rows
-//   }
-// }
+  while (h > 0 && k < A->cols - 1) {
+    k = h;
+    max_value = fabs(A->data[h][k]);
+    max_value_row_index = h;
 
-// void normalize_row(double **A, int m, int n, int rowi) {
-//   int ncoli;
-//   for (int coli = 0; coli < n; coli++)
-//     if (fabs(A[rowi][coli]) > 0.0001) { //found leader of row
-//       for (ncoli = coli+1; ncoli < n; ncoli++) {
-//         A[rowi][ncoli] *= 1 / fabs(A[rowi][coli]);
-//         if (A[rowi][coli] < 0 && fabs(A[rowi][ncoli]) > 0.0001)
-//           A[rowi][ncoli] *= -1;
-//       }
-//       A[rowi][coli] *= 1/A[rowi][coli];
-//       break;
-//     }
-// }
+    // Find the k-th pivot:
+    for (int j = h; j < A->cols; j++) {
+      if (fabs(A->data[h][j]) < 0.0001) {
+        // No pivot in this column, pass to next column
+        k += 1;
+      }
+    }
+    else {
+      if (max_value_row_index != h) {
+        swap_rows(A, h, max_value_row_index);
+      }
 
-// /* 
-//  * Requires row echelon form of matrix A 
-//  */  
-// void reduced_row_echelon_form(double **A, int m, int n, int *perm) {
-//   int flag, rowi, coli, i;
-//   for (rowi = m-1; rowi >= 0; rowi--) { //killing cols
-//     flag = 0;
-//     for (coli = 0; coli < n-1; coli++)
-//       if (fabs(A[rowi][coli]) > 0.0001) { //found leader
-//         flag = 1;
-//         break;
-//       }
+      A->rank += 1;
 
-//     if (flag == 1)
-//       killup_column(A, rowi, coli, m, n);
-//   }
-//   int permtmp;
-//   for (rowi = 0; rowi < m; rowi++) { //swapping cols
-//     flag = 0;
-//     for (coli = 0; coli < n-1; coli++)
-//       if (fabs(A[rowi][coli]) > 0.0001) {
-//         flag = 1;
-//         break;
-//       }
-//     if (flag == 1) {
-//       permtmp = perm[rowi];
-//       perm[rowi] = perm[coli];
-//       perm[coli] = permtmp;
-//       swap_columns(A, m, rowi, coli);
-//     }
-//   }
-//   for (rowi = 0; rowi < m; rowi++)
-//       normalize_row(A, m, n, rowi);
-// }
+      // Do for all rows below pivot:
+      for (int i = h + 1; i < A->rows; i++) {
+        double f = A->data[i][k] / A->data[h][k];
+        // Fill with zeros the lower part of pivot column:
+        A->data[i][k] = 0;
+        // Do for all remaining elements in current row:
+        for (int j = k + 1; j < A->cols; j++) {
+          A->data[i][j] -= A->data[h][j] * f;
+        }
+      }
+
+      // Increase pivot row and column
+      h += 1;
+      k += 1;
+    }
+  }
+}
+
+/* 
+ * Requires row echelon form of matrix A 
+ */ 
+void new_reduced_row_echelon_form(matrix *A) {
+  int h = A->rank - 1; // Initialization of the pivot row (last nonzero)
+
+  while (h > 0) {
+    for (int i = h - 1; i >= 0; i--) {
+      for (int j = h; j < A->cols; j++) {
+        A->data[i][j] -= A->data[h][j] / A->data[h][h] * A->data[i][j] ;
+      }
+    }
+    h -= 1;
+  }
+}
 
 // /* 
 //  * Requires reduced row echelon form of matrix A 
@@ -382,9 +366,12 @@ int main() {
   printf("\ninputed:\n\n");
   print_matrix(A);
 
-  int rank = new_row_echelon_form(A);
+  new_row_echelon_form(A);
+  printf("\nrank = %d, row echelon form:\n\n", A->rank);
+  print_matrix(A);
 
-  printf("\nrank = %d, row echelon form:\n\n", rank);
+  new_reduced_row_echelon_form(A);
+  printf("\nreduced row echelon form:\n\n");
   print_matrix(A);
 
   free_matrix(A);
