@@ -3,7 +3,7 @@
 #include <math.h>
 #include <time.h>
 
-// #define 0.0001 0.0001
+#define EPSILON 0.0001
 
 typedef struct {
   int rows;
@@ -152,29 +152,28 @@ void new_row_echelon_form(matrix *A) {
   A->rank = 0;
   int h = 0; // Initialization of the pivot row
   int k = 0; // Initialization of the pivot column
-  double max_value;
-  int max_value_row_index;
+  double nonzero_value;
+  int nonzero_value_row_index;
 
   while (h < A->rows && k < A->cols - 1) {
-    max_value = fabs(A->data[h][k]);
-    max_value_row_index = h;
+    nonzero_value = EPSILON; //fabs(A->data[h][k]);
+    nonzero_value_row_index = -1;
 
     // Find the k-th pivot:
     for (int i = h; i < A->rows; i++) {
-      if (fabs(A->data[i][k]) > max_value) {
-        max_value = fabs(A->data[i][k]);
-        max_value_row_index = i; 
+      if (fabs(A->data[i][k]) > EPSILON) {
+        // nonzero_value = fabs(A->data[i][k]);
+        nonzero_value_row_index = i;
+        break;
       }
     }
 
-    if (max_value < 0.0001) {
+    if (nonzero_value_row_index == -1) {
       // No pivot in this column, pass to next column
       k += 1;
-    } 
-
-    else {
-      if (max_value_row_index != h) {
-        swap_rows(A, h, max_value_row_index);
+    } else {
+      if (nonzero_value_row_index != h) {
+        swap_rows(A, h, nonzero_value_row_index);
       }
 
       A->rank += 1;
@@ -200,13 +199,13 @@ void new_row_echelon_form(matrix *A) {
 void reduced_row_echelon_form(matrix *A) {
   int h = A->rank - 1; // Initialization of the pivot row
   int k = 0; // Initialization of the pivot column
-  double max_value;
-  int max_value_row_index;
+  double nonzero_value;
+  int nonzero_value_row_index;
 
   while (h > 0 && k < A->cols - 1) {
     k = h;
-    max_value = fabs(A->data[h][k]);
-    max_value_row_index = h;
+    nonzero_value = fabs(A->data[h][k]);
+    nonzero_value_row_index = h;
 
     // Find the k-th pivot:
     for (int j = h; j < A->cols; j++) {
@@ -216,8 +215,8 @@ void reduced_row_echelon_form(matrix *A) {
       }
     }
     else {
-      if (max_value_row_index != h) {
-        swap_rows(A, h, max_value_row_index);
+      if (nonzero_value_row_index != h) {
+        swap_rows(A, h, nonzero_value_row_index);
       }
 
       A->rank += 1;
