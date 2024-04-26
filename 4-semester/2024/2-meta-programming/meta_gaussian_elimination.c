@@ -3,11 +3,7 @@
 #include <math.h>
 
 void generate_gaussian_elimination_code(int rows, int cols, FILE *out) {
-  fprintf(out, "double* solve(matrix *A) {\n");
-  fprintf(out, "  double *root = (double*)malloc((A->cols - 1)*sizeof(double)\n");
-  fprintf(out, "  if (root == NULL) {\n");
-  fprintf(out, "    return NULL;\n");
-  fprintf(out, "  }\n");
+  fprintf(out, "void solve(matrix *A) {\n");
   fprintf(out, "  A->rank = 0;\n");
   fprintf(out, "  int pivot_row, pivot_col;\n");
   fprintf(out, "  double *tmp;\n");
@@ -44,7 +40,7 @@ void generate_gaussian_elimination_code(int rows, int cols, FILE *out) {
         fprintf(out, "    scalar = (-1) * A->data[%d][pivot_col] / A->data[pivot_row][pivot_col];\n", h);
         for (int k = 0; k < cols; k++) {
           fprintf(out, "    A->data[%d][%d] += scalar * A->data[pivot_row][%d];\n", h, k, k);
-          if (k == cols - 1 && i < rows - 1) {
+          if (k == cols - 1 && h < rows - 1) {
             fprintf(out, "\n");
           }
         }
@@ -91,22 +87,6 @@ void generate_gaussian_elimination_code(int rows, int cols, FILE *out) {
     }
     fprintf(out, "  }\n");
   }
-
-  for (int i = pivot_row - 1; i >= 0; i--) {
-    fprintf(out, "  pivot_row = %d;\n", i);
-    fprintf(out, "  pivot_col = -1;\n");
-
-    for (int j = i; j < cols - 1; j++) {
-      if (j == i) {
-        fprintf(out, "  if (fabs(A->data[pivot_row][%d]) > EPSILON) {\n", j);
-      } else {
-        fprintf(out, "  else if (fabs(A->data[pivot_row][%d]) > EPSILON) {\n", j);
-      }
-      fprintf(out, "    pivot_col = %d;\n", j);
-      fprintf(out, "  }\n\n");
-    }
-  }
-
   fprintf(out, "}");
 }
 
