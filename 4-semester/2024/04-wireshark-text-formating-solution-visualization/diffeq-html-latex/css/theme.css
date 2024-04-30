@@ -1,0 +1,49 @@
+@import url(tokens.css);
+@import url(colors.module.css);
+@import url(typography.module.css);
+@import url(theme.light.css) (prefers-color-scheme: light);
+@import url(theme.dark.css) (prefers-color-scheme: dark);
+@import url(phonetics.css);
+
+@font-face {
+  font-family: 'Cormorant Regular';
+  src: url('fonts/CormorantSC/CormorantSC-Regular.ttf') format('truetype');
+  font-weight: normal;
+}
+
+body {
+  color: var(--md-sys-color-on-background);
+  background-color: var(--md-sys-color-background);
+  margin: 0;
+  padding: 0;
+}
+
+body::-webkit-scrollbar {
+  width: 0.25rem;
+}
+
+body::-webkit-scrollbar-track {
+  background: var(--md-sys-color-background);
+}
+
+body::-webkit-scrollbar-thumb {
+  background: var(--md-sys-color-on-background);
+}
+
+main {
+  padding: 1rem;
+  padding-left: 10rem;
+  padding-right: 10rem;
+  word-wrap: break-word;
+}
+
+.equation {
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+@media only screen and (max-width: 600px) {
+  main {
+    padding: 0.5rem;
+  }
+}
