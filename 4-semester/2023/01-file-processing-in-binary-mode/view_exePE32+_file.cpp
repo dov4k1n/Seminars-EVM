@@ -761,7 +761,7 @@ void print_exe_info(exe_info *exe) {
  * needed to be analysed. Example of use after compilation
  * ".\a.exe target_file.exe" or just ".\a.exe a.exe".
  */
-int main(int argc, char *argv[]) {
+int main(int argumentCount, char *argumentValues[]) {
 	if (argc < 2) {
 		std::cout << "Need an exe file!" << std::endl;
 		std::cout << argv[0] << " <file name>" << std::endl;
