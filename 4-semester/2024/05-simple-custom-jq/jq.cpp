@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
   json inputedJson;
   std::cin >> inputedJson;
 
-  if (std::cin.fail() && inputedJson.is_null()) {
+  if (std::cin.fail() || inputedJson.is_null()) {
     std:: cout << "Input JSON is null or input operation failed." << std::endl;
     return -1;
   }
