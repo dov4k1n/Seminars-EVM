@@ -6,26 +6,23 @@
 #include "nlohmann/json.hpp"
 using json = nlohmann::json;
 
-bool is_literal_int(const std::string& str) {
-  std::istringstream iss(str);
-  int value;
-  iss >> value;
-  // Check if the entire string was consumed and no error occurred during conversion
-  return !iss.fail() && iss.eof();
-}
-
 std::vector<std::string> split_root(const std::string& input) {
   std::vector<std::string> chunks;
   std::string chunk = "";
 
-  for (int i = 1; i < input.size(); i++) {
+  for (int i = 0; i < input.size(); i++) {
     if (input[i] != '.' && input[i] != '[' && input[i] != ']') {
+
       chunk += input[i];
+
     } else if (chunk != "") {
+
       chunks.push_back(chunk);
       chunk = "";
+
     }
   }
+
   if (chunk != "") {
     chunks.push_back(chunk);
   }
@@ -35,24 +32,44 @@ std::vector<std::string> split_root(const std::string& input) {
 
 void jq(const json& inputedJson, const std::string& inputedRoot) {
   std::vector<std::string> chunked_root = split_root(inputedRoot);
+  int root_size = chunked_root.size();
 
-  json temp;
+  json result = inputedJson;
+  bool root_has_star = false;
+  int star_index;
 
-  if (is_literal_int(chunked_root[0])) {
-    temp = inputedJson[std::stoi(chunked_root[0])];
-  } else {
-    temp = inputedJson[chunked_root[0]];
-  }
+  for (int i = 0; i < root_size; i++) {
+    if (result.is_object()) {
 
-  for (int i = 1; i < chunked_root.size(); i++) {
-    if (temp.is_object()) {
-      temp = temp[chunked_root[i]];
-    } else if (temp.is_array()) {
-      temp = temp[std::stoi(chunked_root[i])];
+      result = result[chunked_root[i]];
+
+    } else if (result.is_array()) {
+
+      if (chunked_root[i] == "*") {
+        root_has_star = true;
+        star_index = i;
+        break;
+      }
+
+      result = result[std::stoi(chunked_root[i])];
     }
   }
 
-  std::cout << temp.dump(2) << std::endl;
+  if (root_has_star) {
+    json result_chunk;
+
+    for (int i = 0; i < result.size(); i++) {
+      result_chunk = result[i];
+
+      for (int j = star_index + 1; j < root_size; j++) {
+        result_chunk = result_chunk[chunked_root[j]];
+      }
+      
+      std::cout << chunked_root[root_size - 1] << " " << i << ": " << result_chunk.dump(2) << std::endl;
+    }
+  } else {
+    std::cout << result.dump(2) << std::endl;
+  }
 }
 
 void jq(const json& inputedJson) {
@@ -60,8 +77,8 @@ void jq(const json& inputedJson) {
 }
 
 int main(int argc, char *argv[]) {
-  // "https://dummyjson.com/products";
-  // "https://api.github.com/repos/jqlang/jq/commits?per_page=5";
+  // https://dummyjson.com/products
+  // https://api.github.com/repos/jqlang/jq/commits?per_page=5
 
   json inputedJson;
   std::cin >> inputedJson;
