@@ -1,8 +1,9 @@
 /**
  * @file topological_sort.hpp
- * @author Ayzat Rizatdinov
+ * @author Ayzat Rizatdinov (dov4k1n)
  *
- * Реализация топологической сортировки.
+ * Реализация алгоритма топологической сортировки ориентированного
+ * ациклического графа.
  */
 
 #ifndef INCLUDE_TOPOLOGICAL_SORT_HPP_
@@ -11,73 +12,114 @@
 #include <algorithm>
 #include <unordered_map>
 #include <vector>
-#include <graph.hpp>
+#include <oriented_graph.hpp>
 
-#define Edge std::pair<size_t, size_t>
-
-template<class Graph>
-void dfs(
-  const Graph &graph,
-  std::unordered_map<size_t, bool> *used,
-  size_t root, 
-  size_t dest,
-  std::vector<Edge> *result
-) {
-
-  (*used)[root] = true;
-
-  for (size_t way : graph.Edges(root)) {
-    if (!(*used)[way]) {
-      dfs(
-        graph, 
-        used, 
-        root, 
-        way, 
-        result
-      );
-    }
-
-    if (way > root) {
-      (*result).push_back({root, way});
-    } else {
-      (*result).push_back({way, root});
-    }
-  }
-}
-
+namespace graph {
 
 /**
  * @brief Алгоритм топологической сортировки.
  *
- * @param graph На вход подаётся ссылка на объект типа graph::Graph,
- * описанный в файле: 
- * @sa graph.cpp
+ * @param graph На вход подаётся ссылка на объект типа graph::OrientedGraph,
+ * описанный в файле @sa oriented_graph.hpp
  *
- * @return Алгоритм возвращает отсортированный список вершин в виде пар:
- * (id одной вершины, id второй вершины).
+ * @return Алгоритм возвращает отсортированный список рёбер в виде пар:
+ * (id вершины с меньшим номером, id вершины с большим номером), или
+ * пустой вектор, если в графе есть цикл.
+ *
+ * Функция инициализирует словарь посещённых вершин, алгоритмом 
+ * обхода в глубину проверяет граф на ацикличность, переупорядочивает вершины 
+ * и кладёт их в итоговый вектор.
  */
-template<class Graph>
-std::vector<Edge> TopologicalSort(const Graph &graph) {
-  
-  std::unordered_map<size_t, bool> used;
-
-  std::vector<Edge> result;
-
+std::vector<std::pair<size_t, size_t>> TopologicalSort(OrientedGraph& graph) {
+  std::unordered_map<size_t, bool> visited;
   for (auto vertex : graph.Vertices()) {
-    used[vertex] = false;
+    visited[vertex] = false;
   }
 
-  result.clear();
+  std::vector<std::pair<size_t, size_t> result_order;
 
   for (auto vertex : graph.Vertices()) {
-    if (!used[vertex]) {
-      dfs(graph, &used, vertex, &result);
+    if (isCyclic(graph, visited, vertex)) {
+      return result_order;
     }
   }
 
-  reverse (result.begin(), result.end());
+  for (auto vertex : graph.Vertices()) {
+    visited[vertex] = false;
+  }
+  
+  for (auto vertex : graph.Vertices()) {
+    if (!visited[vertex]) {
+      dfs(graph, visited, vertex, result_order);
+    }
+  }
 
   return result;
 }
+
+/**
+ * @brief Алгоритм обхода в глубину для топологической сортировки.
+ *
+ * @param graph Объект типа graph::OrientedGraph, описанный в файле:
+ * @sa oriented_graph.hpp
+ * @param vertex Итерируемая вершина графа.
+ * @param visited Словарь пройденных вершин.
+ * @param result_order Вектор, куда будут добавляться рёбра по мере сортировки.
+ *
+ * Функция отмечает вершину, в которую мы попали, и для всех исходящих из неё
+ * рёбер применяет рекурсию, если их ещё не обработали. В конце добавляет
+ * в итоговый вектор рёбер переупорядочённые пары вершин.
+ */
+void dfs(
+  const OrientedGraph& graph,
+  const size_t& vertex,
+  std::unordered_map<size_t, bool>& visited,
+  std::vector<std::pair<size_t, size_t>>& result_order
+) {
+  visited[vertex] = true;
+
+  for (auto destination : graph.Edges(vertex)) {
+    if (!visited[destination])
+      dfs(graph, destination, visited, result_order);
+
+    if (destination > vertex) {
+      result_order.push_back({vertex, destination});
+    } else {
+      result_order.push_back({destination, vetex});
+    }
+  }
+}
+
+/**
+ * @brief Алгоритм проверки на ацикличность ориентированного графа 
+ * с помощью обхода в глубину.
+ *
+ * @param graph Объект типа graph::OrientedGraph, описанный в файле:
+ * @sa oriented_graph.hpp
+ * @param vertex Итерируемая вершина графа.
+ * @param visited Словарь пройденных вершин.
+ *
+ * Функция рекурсивно проходит по всем исходящим рёбрам до тех пор, пока
+ * не дойдёт до вершины, из которой не исходит ребро, или до тех пор,
+ * пока цикл не замкнётся.
+ */
+bool isCyclic(
+  const OrientedGraph& graph,
+  const size_t& vertex,
+  std::unordered_map<size_t, bool>& visited
+) {
+  visited[vertex] = true;
+
+  for (auto destination : graph.Edges(vertex)) {
+    if (visited[destionation])
+      return true;
+    if (!visited[destination])
+      return isCyclic(graph, destination, visited);
+  }
+  
+  return false;
+}
+
+}  // namespace graph
 
 #endif  // INCLUDE_BRIDGE_SEARCH_HPP_

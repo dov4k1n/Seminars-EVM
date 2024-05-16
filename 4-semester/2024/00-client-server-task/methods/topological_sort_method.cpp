@@ -12,8 +12,6 @@
 #include <graph.hpp>
 #include "methods.hpp"
 
-
-
 int graph::TopologicalSortMethod(
   const nlohmann::json &input,
   nlohmann::json *output
@@ -24,20 +22,15 @@ int graph::TopologicalSortMethod(
     graph.AddVertex(vertex);
   }
 
-  for (auto edge : input["edged"]) {
+  for (auto edge : input["edges"]) {
     graph.AddEdge(edge[0], edge[1]);
   }
 
-  (*output) = {
-    {
-      "result",
-      TopologicalSort(
-        graph,
-        input["vertices_first_part"],
-        input["vertices_second_part"]
-      )
-    }
+  nlohmann::json result = {
+    {"result", TopologicalSort(graph)}
   };
+
+  (*output) = result;
 
   return 0;
 }

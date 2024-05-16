@@ -2,20 +2,68 @@
  * @file topological_sort_test.cpp
  * @author Ayzat Rizatdinov (dov4k1n)
  *
- * Тесты для класса TopologicalSort.
+ * Тесты для алгоритма TopologicalSort.
  */
 
+#include "test_core.hpp"
 #include <topological_sort.hpp>
+#include <oriented_graph.hpp>
+
 #include <httplib.h>
 #include <algorithm>
 #include <random>
 #include <iostream>
 #include <vector>
-#include <graph.hpp>
 #include <nlohmann/json.hpp>
-#include "test_core.hpp"
 
-using graph::Graph;
+using graph::OrientedGraph;
+using graph::TopologicalSort;
+
+static void SimpleTest();
+static void AnotherSimpleTest();
+
+void TestTopologicalSort() {
+  TestSuite suite("TestTopologicalSort");
+
+  RUN_TEST(suite, SimpleTest);
+  RUN_TEST(suite, AnotherSimpleTest);
+}
+
+static void SimpleTest() {
+  OrientedGraph graph;
+
+  graph.AddVertex(1);
+
+  REQUIRE(graph.HasVertex(1));
+
+  graph.AddVertex(2);
+
+  REQUIRE(graph.HasVertex(2));
+
+  graph.AddEdge(1, 2);
+
+  REQUIRE(graph.HasEdge(1, 2));
+}
+
+static void AnotherSimpleTest() {
+  OrientedGraph graph;
+
+  graph.AddVertex(1);
+
+  REQUIRE(graph.HasVertex(1));
+
+  graph.AddVertex(2);
+
+  REQUIRE(graph.HasVertex(2));
+
+  graph.AddEdge(1, 2);
+
+  REQUIRE(graph.HasEdge(1, 2));
+
+  graph.RemoveVertex(2);
+
+  REQUIRE(!graph.HasEdge(1, 2));
+}
 
 /**
   * @brief Основная функция для теста класса TopologicalSort.
@@ -32,14 +80,8 @@ void TestTopologicalSort(httplib::Client *client) {
 }
 
 void TestTopologicalSortCore(httplib::Client *client) {
-  std::map<
-    std::string, 
-    std::pair<nlohmann::json, nlohmann::json>
-  > cases;
-
-  std::vector<
-    std::pair<size_t, size_t>
-  > empty_list;
+  std::map<std::string, std::pair<nlohmann::json, nlohmann::json>> cases;
+  std::vector<std::pair<size_t, size_t>> empty_list;
 
   /**
    * @brief Тест для сортировки пустого графа.

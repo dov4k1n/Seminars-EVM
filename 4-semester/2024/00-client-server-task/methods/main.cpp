@@ -40,13 +40,16 @@ int main(int argc, char* argv[]) {
   svr.Post(
     "/topological_sort",
     [&](
-      const httplib::Request &req, 
-      httplib::Response &res
+      const httplib::Request &request, 
+      httplib::Response &response
     ) {
-      const nlohmann::json input = nlohmann::json::parse(req.body);
+      const nlohmann::json input = nlohmann::json::parse(request.body);
+
       nlohmann::json *output = new nlohmann::json();
+      
       graph::TopologicalSortMethod(input, output);
-      res.set_content((*output).dump(), "application/json");
+      
+      response.set_content((*output).dump(), "application/json");
     }
   );
 
