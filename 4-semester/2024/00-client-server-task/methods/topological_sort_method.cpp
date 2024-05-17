@@ -2,35 +2,47 @@
  * @file methods/topological_sort_method.cpp
  * @author Ayzat Rizatdinov (dov4k1n)
  *
- * Реализация функции для серверной части алгоритмов. Эта функция
- * считывает JSON, который прислал клиент, выполняет алгоритм и отправляет клиенту
- * JSON с результатом работы алгоритма.
+ * Файл содержит функцию, которая вызывает алгоритм топологической сортировки.
+ * Функция принимает и возвращает данные в JSON формате.
  */
 
-#include <topological_sort.hpp>
+#include <iostream>
 #include <nlohmann/json.hpp>
-#include <graph.hpp>
+#include "topological_sort.hpp"
+#include "oriented_graph.hpp"
 #include "methods.hpp"
 
-int graph::TopologicalSortMethod(
-  const nlohmann::json &input,
-  nlohmann::json *output
+namespace graph {
+
+int TopologicalSortMethod(
+  const nlohmann::json& input,
+  nlohmann::json* output
 ) {
-  graph::Graph graph;
+  (*output)["id"] = input.at("id");
 
-  for (auto vertex : input["vertices"]) {
+  graph::OrientedGraph graph;
+
+  for (auto vertex : input.at("vertices")) {
     graph.AddVertex(vertex);
+    std::cout << vertex << std::endl;
   }
 
-  for (auto edge : input["edges"]) {
-    graph.AddEdge(edge[0], edge[1]);
+  for (auto edge : input.at("edges")) {
+    graph.AddEdge(edge.at("start"), edge.at("end"));
+    std::cout << edge << std::endl;
+    std::cout << edge.at("start") << std::endl;
+    std::cout << edge.at("end") << std::endl;
   }
 
-  nlohmann::json result = {
-    {"result", TopologicalSort(graph)}
-  };
+  std::vector<size_t> result_order = TopologicalSort(graph);
 
-  (*output) = result;
+  for (auto vertex : result_order) {
+    std::cout << vertex << " " << std::endl;
+  }
+
+  (*output)["result"] = result_order;
 
   return 0;
 }
+
+} // namespace graph

@@ -2,253 +2,226 @@
  * @file topological_sort_test.cpp
  * @author Ayzat Rizatdinov (dov4k1n)
  *
- * Тесты для алгоритма TopologicalSort.
+ * Реализация набора тестов для алгоритма топологической сортировки.
  */
 
-#include "test_core.hpp"
-#include <topological_sort.hpp>
-#include <oriented_graph.hpp>
-
-#include <httplib.h>
-#include <algorithm>
-#include <random>
-#include <iostream>
 #include <vector>
+#include <httplib.h>
 #include <nlohmann/json.hpp>
+#include "topological_sort.hpp"
+#include "oriented_graph.hpp"
+#include "test_core.hpp"
+#include "test.hpp"
 
-using graph::OrientedGraph;
-using graph::TopologicalSort;
+static void SimpleTest(httplib::Client* client);
+// static void RandomTest(httplib::Client* cli);
 
-static void SimpleTest();
-static void AnotherSimpleTest();
-
-void TestTopologicalSort() {
+void TestTopologicalSort(httplib::Client* client) {
   TestSuite suite("TestTopologicalSort");
 
-  RUN_TEST(suite, SimpleTest);
-  RUN_TEST(suite, AnotherSimpleTest);
+  RUN_TEST_REMOTE(suite, client, SimpleTest);
+  // RUN_TEST_REMOTE(suite, client, RandomTest); нельзя сделать, так как
+  // результат топологической сортировки неоднозначный.
 }
 
-static void SimpleTest() {
-  OrientedGraph graph;
+/** 
+ * @brief Простейший статический тест.
+ *
+ * @param cli Указатель на HTTP клиент.
+ */
+static void SimpleTest(httplib::Client* client) {
+  {
+    /*
+     Библиотека nlohmann json позволяет преобразовать
+     строку в объект nlohmann::json не только при помощи
+     функции nlohmann::json::parse(), но и при помощи
+     специального литерала _json. Если его поставить после строки
+     в кавычках, то она конвертируется в json объект.
+     
+     R"(
+     )" Так записывается строка, содержащая символы перевода строки
+     в C++. Всё, что между скобками это символы строки. Переводы строк
+     можно ставить просто как перевод строки в текстовом редактора
+     (а не через \n).     
+    */
+    nlohmann::json input = R"(
+  {
+    "id": 1,
+    "vertices": [ 1, 2, 3 ],
+    "edges": [ 
+      {
+        "start": 2,
+        "end":  1
+      },
+      {
+        "start": 1,
+        "end": 3
+      }
+    ]
+  }
+)"_json;
 
-  graph.AddVertex(1);
-
-  REQUIRE(graph.HasVertex(1));
-
-  graph.AddVertex(2);
-
-  REQUIRE(graph.HasVertex(2));
-
-  graph.AddEdge(1, 2);
-
-  REQUIRE(graph.HasEdge(1, 2));
-}
-
-static void AnotherSimpleTest() {
-  OrientedGraph graph;
-
-  graph.AddVertex(1);
-
-  REQUIRE(graph.HasVertex(1));
-
-  graph.AddVertex(2);
-
-  REQUIRE(graph.HasVertex(2));
-
-  graph.AddEdge(1, 2);
-
-  REQUIRE(graph.HasEdge(1, 2));
-
-  graph.RemoveVertex(2);
-
-  REQUIRE(!graph.HasEdge(1, 2));
-}
-
-/**
-  * @brief Основная функция для теста класса TopologicalSort.
-  *
-  * @param client Клиент, отправляющий запросы.
-  *
-  * Функция тестирует алгоритм, отправляя JSON-ы с клиента 
-  * и проверяя выходные JSON-ы на корректность.
-*/
-void TestTopologicalSort(httplib::Client *client) {
-  TestSuite suite("TestTopologicalSort");
-
-  RUN_TEST_REMOTE(suite, client, TestTopologicalSortCore);
-}
-
-void TestTopologicalSortCore(httplib::Client *client) {
-  std::map<std::string, std::pair<nlohmann::json, nlohmann::json>> cases;
-  std::vector<std::pair<size_t, size_t>> empty_list;
-
-  /**
-   * @brief Тест для сортировки пустого графа.
-   */
-  cases["Empty"] = {
-    {
-      {"vertices", empty_list},
-      {"edges", empty_list}
-    },
-    {
-      {"result", empty_list}
-    }
-  };
-
-  /**
-   * @brief Тест для сортировки линейного графа.
-   */
-  cases["One line"] = {
-    {
-      {"vertices", {1, 2, 3, 10}},
-      {"edges", {{1, 2}, {2, 3}, {3, 10}}}
-    },
-    {
-      {"result", {{1, 2}, {2, 3}, {3, 10}}}
-    }
-  };
-
-  /**
-   * @brief Тест для сортировки графа без рёбер.
-   */
-  cases["No edges"] = {
-    {
-      {"vertices", {1, 2, 3, 4}},
-      {"edges", empty_list}
-    },
-    {
-      {"result", empty_list}
-    }
-  };
-
-  /**
-   * @brief Тест для сортировки полного графа.
-   */
-  cases["All connected"] = {
-    {
-      {"vertices", {1, 2, 3}},
-      {"edges", {{1, 2}, {2, 3}, {3, 1}}}
-    },
-    {
-      {"result", empty_list}
-    }
-  };
-
-  /**
-   * @brief Тест для сортировки графа с тремя компонентами связности.
-   */
-  cases["Multiple connectivity components"] = {
-    {
-      {"vertices", {1, 2, 3, 4, 5}},
-      {"edges", {{1, 2}, {4, 3}}}
-    },
-    {
-      {"result", {{1, 2}, {3, 4}}}
-    }
-  };
-
-  /**
-   * @brief Чуть сложнее тест сортировки графа с тремя компонентами связности.
-   */
-  cases["Complex case"] = {
-    {
-      {"vertices", {1, 2, 3, 4, 5, 6, 7, 8}},
-      {"edges", {{1, 2}, {2, 3}, {3, 1}, {3, 4}, {4, 6}, {6, 7}}}
-    },
-    {
-      {"result", empty_list}
-    }
-  };
-
-  for (const auto &[name, value] : cases) {
-    std::cout << name << "... ";
-
-    auto output = client->Post(
+    /* Делаем POST запрос по адресу нашего метода на сервере.
+    Метод dump() используется для преобразования JSON обратно в строку.
+    (Можно было сразу строку передать). При передаче JSON данных
+    необходимо поставить тип MIME "application/json".
+    */
+    httplib::Result result = client->Post(
       "/TopologicalSort",
-      value.first.dump(), 
+      input.dump(),
       "application/json"
     );
 
-    REQUIRE(output->body == value.second.dump());
-    REQUIRE_EQUAL(output->body, value.second.dump());
+    /* Используем метод parse() для преобразования строки ответа сервера
+    (result->body) в объект JSON. */
+    nlohmann::json output = nlohmann::json::parse(result->body);
 
-    std::cout << "OK!\n";
+    /* Проверка результатов сортировки. */
+    REQUIRE_EQUAL(1, output["id"]);
+
+    REQUIRE_EQUAL(output["result"][0], 2);
+    REQUIRE_EQUAL(output["result"][1], 1);
+    REQUIRE_EQUAL(output["result"][2], 3);
   }
+  {
+    /**
+     * @brief Тест для сортировки пустого графа.
+     */
+    nlohmann::json input = R"(
+  {
+    "id": 2,
+    "vertices": [ ],
+    "edges": [ ]
+  }
+)"_json;
 
-  /**
-   * @brief Случайные тесты.
-   */
-  std::cout << "Random test... ";
-
-  int vertices_num = 100;
-
-  int edges_num = 150;
-
-  std::vector<size_t> vertices(vertices_num);
-
-  std::iota(vertices.begin(), vertices.end(), 0);
-
-  std::bernoulli_distribution bern(0.5);
-
-  // Служит для инициализации генератора случайных чисел.
-  std::random_device rd;
-  // Генератор случайных чисел.
-  std::mt19937 generator(rd());
-  // Функция распределения случайных целых чисел 
-  // от 1 до vertices_num - 1 включительно.
-  std::uniform_int_distribution<int> dist(1, vertices_num - 1);
-
-  for (int j = 0; j < 100; ++j) {
-    std::vector<
-      std::pair<size_t, size_t>
-    > edges;
-
-    int threshold = dist(generator);
-
-    std::uniform_int_distribution first_part(0, threshold - 1);
-    std::uniform_int_distribution second_part(threshold, vertices_num - 1);
-
-    for (int i = 0; i < edges_num; ++i) {
-      size_t vert1;
-      size_t vert2;
-
-      if (bern(generator)) {
-        vert1 = first_part(generator);
-        vert2 = first_part(generator);
-      } else {
-        vert1 = second_part(generator);
-        vert2 = second_part(generator);
-      }
-
-      if (vert1 > vert2) {
-        std::swap(vert1, vert2);
-      }
-
-      edges.push_back({vert1, vert2});
-    }
-
-    edges.push_back({threshold - 1, threshold});
-    sort(edges.begin(), edges.end());
-    edges.erase(unique(edges.begin(), edges.end()), edges.end());
-
-    nlohmann::json random_graph = {
-      {"vertices", vertices},
-      {"edges", edges}
-    };
-
-    auto output = client->Post(
+    httplib::Result result = client->Post(
       "/TopologicalSort",
-      random_graph.dump(), 
+      input.dump(),
       "application/json"
     );
 
-    std::stringstream ss;
-    ss << threshold - 1 << "," << threshold;
-    std::string res = ss.str();
+    nlohmann::json output = nlohmann::json::parse(result->body);
+    std::vector<size_t> empty_vector;
 
-    REQUIRE(output->body.find(res) != std::string::npos);
+    REQUIRE_EQUAL(2, output["id"]);
+
+    REQUIRE_EQUAL(output["result"], empty_vector);
   }
-  
-  std::cout << "OK!\n";
+  {
+    /**
+     * @brief Тест для сортировки линейного графа.
+     */
+    nlohmann::json input = R"(
+  {
+    "id": 3,
+    "vertices": [ 1, 2, 3, 4 ],
+    "edges": [ 
+      {
+        "start": 1,
+        "end": 2
+      },
+      {
+        "start": 2,
+        "end": 3
+      },
+      {
+        "start": 3,
+        "end": 4
+      } 
+    ]
+  }
+)"_json;
+
+    httplib::Result result = client->Post(
+      "/TopologicalSort",
+      input.dump(),
+      "application/json"
+    );
+
+    nlohmann::json output = nlohmann::json::parse(result->body);
+    REQUIRE_EQUAL(3, output["id"]);
+
+    REQUIRE_EQUAL(output["result"][0], 1);
+    REQUIRE_EQUAL(output["result"][1], 2);
+    REQUIRE_EQUAL(output["result"][2], 3);
+    REQUIRE_EQUAL(output["result"][3], 4);
+  }
+  {
+    /**
+     * @brief Тест для сортировки обратного линейного графа.
+     */
+    nlohmann::json input = R"(
+  {
+    "id": 4,
+    "vertices": [ 1, 2, 3, 4 ],
+    "edges": [ 
+      {
+        "start": 4,
+        "end": 3
+      },
+      {
+        "start": 3,
+        "end": 2
+      },
+      {
+        "start": 2,
+        "end": 1
+      }
+    ]
+  }
+)"_json;
+
+    httplib::Result result = client->Post(
+      "/TopologicalSort",
+      input.dump(),
+      "application/json"
+    );
+
+    nlohmann::json output = nlohmann::json::parse(result->body);
+    REQUIRE_EQUAL(4, output["id"]);
+
+    REQUIRE_EQUAL(output["result"][0], 4);
+    REQUIRE_EQUAL(output["result"][1], 3);
+    REQUIRE_EQUAL(output["result"][2], 2);
+    REQUIRE_EQUAL(output["result"][3], 1);
+  }
+  {
+    /**
+     * @brief Тест для сортировки графа с циклом.
+     */
+    nlohmann::json input = R"(
+  {
+    "id": 5,
+    "vertices": [ 1, 2, 3 ],
+    "edges": [ 
+      {
+        "start": 1,
+        "end": 2
+      },
+      {
+        "start": 2,
+        "end": 3
+      }, 
+      {
+        "start": 3,
+        "end": 1
+      } 
+    ]
+  }
+)"_json;
+
+    httplib::Result result = client->Post(
+      "/TopologicalSort",
+      input.dump(),
+      "application/json"
+    );
+
+    nlohmann::json output = nlohmann::json::parse(result->body);
+    std::vector<size_t> empty_vector;
+
+    REQUIRE_EQUAL(5, output["id"]);
+
+    REQUIRE_EQUAL(output["result"], empty_vector);
+  }
 }

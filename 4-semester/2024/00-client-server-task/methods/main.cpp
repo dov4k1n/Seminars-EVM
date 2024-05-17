@@ -10,7 +10,7 @@
 #include <nlohmann/json.hpp>
 #include "methods.hpp"
 
-
+using graph::TopologicalSortMethod;
 
 int main(int argc, char* argv[]) {
   // Порт по-умолчанию.
@@ -37,19 +37,33 @@ int main(int argc, char* argv[]) {
 
   /* Сюда нужно вставить обработчик post запроса для алгоритма. */
 
+  /* /TopologicalSort это адрес для запросов на топологическую сортировку
+  на сервере. */
   svr.Post(
-    "/topological_sort",
+    "/TopologicalSort",
     [&](
-      const httplib::Request &request, 
-      httplib::Response &response
+      const httplib::Request& request, 
+      httplib::Response& response
     ) {
+      /*
+      Поле body структуры httplib::Request содержит текст запроса.
+      Функция nlohmann::json::parse() используется для того,
+      чтобы преобразовать текст в объект типа nlohmann::json.
+      */
       const nlohmann::json input = nlohmann::json::parse(request.body);
-
-      nlohmann::json *output = new nlohmann::json();
+      nlohmann::json output;
       
-      graph::TopologicalSortMethod(input, output);
+      /* Если метод завершился с ошибкой, то выставляем статус 400. */
+      if (TopologicalSortMethod(input, &output) < 0)
+        response.status = 400;
       
-      response.set_content((*output).dump(), "application/json");
+      /*
+      Метод nlohmann::json::dump() используется для сериализации
+      объекта типа nlohmann::json в строку. Метод set_content()
+      позволяет задать содержимое ответа на запрос. Если передаются
+      JSON данные, то MIME тип следует выставить application/json.
+      */
+      response.set_content(output.dump(), "application/json");
     }
   );
 
