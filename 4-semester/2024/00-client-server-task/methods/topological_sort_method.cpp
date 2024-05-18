@@ -22,6 +22,7 @@ int TopologicalSortMethod(
 
   graph::OrientedGraph graph;
 
+  std::cout << std::endl << "input:" << std::endl;
   for (auto vertex : input.at("vertices")) {
     graph.AddVertex(vertex);
     std::cout << vertex << std::endl;
@@ -35,9 +36,10 @@ int TopologicalSortMethod(
   }
 
   std::vector<size_t> result_order = TopologicalSort(graph);
+  std::cout <<std::endl << "result:" << std::endl;
 
   for (auto vertex : result_order) {
-    std::cout << vertex << " " << std::endl;
+    std::cout << vertex << std::endl;
   }
 
   (*output)["result"] = result_order;

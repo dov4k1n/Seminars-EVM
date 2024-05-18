@@ -25,10 +25,11 @@ void dfs(
   std::vector<size_t>& result_order
 );
 
-bool isCyclic(
+void isCyclic(
   const OrientedGraph& graph,
   const size_t& vertex,
-  std::unordered_map<size_t, std::string>& visited
+  std::unordered_map<size_t, std::string>& visited,
+  bool& is_cyclic
 );
 
 /**
@@ -57,9 +58,12 @@ std::vector<size_t> TopologicalSort(OrientedGraph& graph) {
   std::cout << std::endl;
 
   std::vector<size_t> result_order;
+  bool is_cyclic = false;
 
   for (auto vertex : graph.Vertices()) {
-    if (isCyclic(graph, vertex, visited)) {
+    if (visited[vertex] == "white")
+      isCyclic(graph, vertex, visited, is_cyclic);
+    if (is_cyclic) {
       std::cout << "is cyclic!" << std::endl;
       return result_order;
     }
@@ -121,10 +125,11 @@ void dfs(
  * не дойдёт до вершины, из которой не исходит ребро, или до тех пор,
  * пока цикл не замкнётся.
  */
-bool isCyclic(
+void isCyclic(
   const OrientedGraph& graph,
   const size_t& vertex,
-  std::unordered_map<size_t, std::string>& visited
+  std::unordered_map<size_t, std::string>& visited,
+  bool& is_cyclic
 ) {
   visited[vertex] = "grey";
 
@@ -135,14 +140,15 @@ bool isCyclic(
     std::cout << "destination: " << destination << " is visited?: " << visited[destination] << std::endl;
 
     if (visited[destination] == "white")
-      return isCyclic(graph, destination, visited);
-    if (visited[destination] == "grey")
-      return true;
+      isCyclic(graph, destination, visited, is_cyclic);
+    if (visited[destination] == "grey") {
+      is_cyclic = true;
+      return;
+    }
   }
 
   visited[vertex] = "black";
-  
-  return false;
+  std::cout << vertex << " is now black" << std::endl;
 }
 
 }  // namespace graph
