@@ -25,22 +25,22 @@ int TopologicalSortMethod(
   std::cout << std::endl << "input:" << std::endl;
   for (auto vertex : input.at("vertices")) {
     graph.AddVertex(vertex);
-    std::cout << vertex << std::endl;
+    std::cout << vertex << " ";
   }
+  std::cout << std::endl;
 
   for (auto edge : input.at("edges")) {
     graph.AddEdge(edge.at("start"), edge.at("end"));
     std::cout << edge << std::endl;
-    std::cout << edge.at("start") << std::endl;
-    std::cout << edge.at("end") << std::endl;
   }
 
   std::vector<size_t> result_order = TopologicalSort(graph);
-  std::cout <<std::endl << "result:" << std::endl;
 
+  std::cout <<std::endl << "result: " << std::endl;
   for (auto vertex : result_order) {
-    std::cout << vertex << std::endl;
+    std::cout << vertex << " ";
   }
+  std::cout << std::endl;
 
   (*output)["result"] = result_order;
 
