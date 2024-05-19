@@ -27,6 +27,12 @@ enum DFSVertexState {
   Processed
 };
 
+<template >
+struct TSortOutput {
+  std::vector<size_t> order;
+
+}
+
 /**
  * @brief Массив для печати состояния вершины графа при обходе в глубину
  * в читаемом виде.
@@ -40,6 +46,7 @@ const char* DFSVertexState_txt[] = {
   "processed"
 };
 
+<template typename Weight>
 void dfs(
   const OrientedGraph& graph,
   const size_t& vertex,
@@ -62,6 +69,7 @@ void dfs(
  * обхода в глубину проверяет граф на ацикличность и кладёт их в 
  * итоговый вектор, начиная с листьев. В самом конце вектор разворачивается.
  */
+<template typename Weight>
 std::vector<size_t> TopologicalSort(OrientedGraph& graph) {
   std::unordered_map<size_t, DFSVertexState> visited;
   std::vector<size_t> result_order;
@@ -106,6 +114,7 @@ std::vector<size_t> TopologicalSort(OrientedGraph& graph) {
  * рёбер применяет рекурсию, если их ещё не обработали. В конце добавляет
  * в итоговый вектор вершину.
  */
+<template typename Weight>
 void dfs(
   const OrientedGraph& graph,
   const size_t& vertex,
