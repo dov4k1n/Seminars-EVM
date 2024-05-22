@@ -27,18 +27,9 @@ enum DFSVertexState {
   Processed
 };
 
-<template >
-struct TSortOutput {
-  std::vector<size_t> order;
-
-}
-
 /**
  * @brief Массив для печати состояния вершины графа при обходе в глубину
  * в читаемом виде.
- *
- * Пример использования: 
- * std::cout << DFSVertexState_txt[DFXVertexState.NotVisited]; // not visited
  */
 const char* DFSVertexState_txt[] = {
   "not visited",
@@ -46,12 +37,22 @@ const char* DFSVertexState_txt[] = {
   "processed"
 };
 
-<template typename Weight>
+/**
+ * @brief Возвращаемая структура для алгоритма топологической сортировки
+ * с максимальным весом. 
+ */
+template <typename Weight>
+struct TSortOutput {
+  std::vector<size_t> order;
+  Weight max_weight;
+};
+
+template <typename Weight>
 void dfs(
-  const OrientedGraph& graph,
+  const WeightedOrientedGraph<Weight>& graph,
   const size_t& vertex,
   std::unordered_map<size_t, DFSVertexState>& visited,
-  std::vector<size_t>& result_order,
+  TSortOutput<Weight>& result,
   bool& is_cyclic
 );
 
@@ -69,13 +70,17 @@ void dfs(
  * обхода в глубину проверяет граф на ацикличность и кладёт их в 
  * итоговый вектор, начиная с листьев. В самом конце вектор разворачивается.
  */
-<template typename Weight>
-std::vector<size_t> TopologicalSort(OrientedGraph& graph) {
+template <typename Weight>
+TSortOutput<Weight> TopologicalSort(WeightedOrientedGraph<Weight>& graph) {
   std::unordered_map<size_t, DFSVertexState> visited;
-  std::vector<size_t> result_order;
+  TSortOutput<Weight> result;
+  result.max_weight = std::numeric_limits<Weight>::min();
   bool is_cyclic = false;
 
-  std::cout << std::endl << "in TopologicalSort graph.Vertices():" << std::endl;
+  std::cout << 
+    std::endl << 
+    "in TopologicalSort graph.Vertices():" << 
+    std::endl;
 
   for (auto vertex : graph.Vertices()) {
     visited[vertex] = DFSVertexState::NotVisited;
@@ -86,17 +91,19 @@ std::vector<size_t> TopologicalSort(OrientedGraph& graph) {
   for (auto vertex : graph.Vertices()) {
     if (is_cyclic) {
       std::cout << "is cyclic!" << std::endl;
-      return std::vector<size_t>();
+      result.order = std::vector<size_t>();
+      result.max_weight = Weight();
+      return result;
     }
     
     if (visited[vertex] == DFSVertexState::NotVisited) {
-      dfs(graph, vertex, visited, result_order, is_cyclic);
+      dfs<Weight>(graph, vertex, visited, result, is_cyclic);
     }
   }
 
-  std::reverse(result_order.begin(), result_order.end());
+  std::reverse(result.order.begin(), result.order.end());
 
-  return result_order;
+  return result;
 }
 
 /**
@@ -114,17 +121,20 @@ std::vector<size_t> TopologicalSort(OrientedGraph& graph) {
  * рёбер применяет рекурсию, если их ещё не обработали. В конце добавляет
  * в итоговый вектор вершину.
  */
-<template typename Weight>
+template <typename Weight>
 void dfs(
-  const OrientedGraph& graph,
+  const WeightedOrientedGraph<Weight>& graph,
   const size_t& vertex,
   std::unordered_map<size_t, DFSVertexState>& visited,
-  std::vector<size_t>& result_order,
+  TSortOutput<Weight>& result,
   bool& is_cyclic
 ) {
   visited[vertex] = DFSVertexState::Processing;
 
-  std::cout << std::endl << "in dfs vertex: " << vertex << std::endl;
+  std::cout << 
+    std::endl << 
+    "in dfs vertex: " << vertex 
+    << std::endl;
 
   for (auto destination : graph.Edges(vertex)) {
     std::cout << 
@@ -133,21 +143,28 @@ void dfs(
       std::endl;
 
     if (visited[destination] == DFSVertexState::NotVisited)
-      dfs(graph, destination, visited, result_order, is_cyclic);
+      dfs<Weight>(graph, destination, visited, result, is_cyclic);
     if (visited[destination] == DFSVertexState::Processing) {
       is_cyclic = true;
       return;
+    }
+
+    Weight current_weight = graph.EdgeWeight(vertex, destination);
+    if (current_weight > result.max_weight) {
+      result.max_weight = current_weight;
+      std::cout <<
+        "max weight is now " << current_weight <<
+        std::endl;
     }
   }
 
   visited[vertex] = DFSVertexState::Processed;
   std::cout << 
     vertex << 
-    " is now " << 
-    DFSVertexState_txt[visited[vertex]] << 
+    " is now " << DFSVertexState_txt[visited[vertex]] << 
     std::endl;
 
-  result_order.push_back(vertex);
+  result.order.push_back(vertex);
 }
 
 }  // namespace graph
