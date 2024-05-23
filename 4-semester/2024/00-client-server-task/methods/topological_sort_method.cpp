@@ -37,6 +37,7 @@ int TopologicalSortMethod(
     return TopologicalSortMethodHelper<long double>(input, output);
   } else if (weight_type == "") {
     (*output)["id"] = input.at("id");
+    (*output)["weight_type"] = "";
     (*output)["order"] = std::vector<size_t>();
     (*output)["max_weight"] = "";
     return 0;
@@ -98,6 +99,7 @@ static int TopologicalSortMethodHelper(
     std::endl;
 
   (*output)["id"] = input.at("id");
+  (*output)["weight_type"] = input.at("weight_type");
   (*output)["order"] = result.order;
   (*output)["max_weight"] = result.max_weight;
 

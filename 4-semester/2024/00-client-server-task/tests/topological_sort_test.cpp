@@ -359,61 +359,87 @@ static void RandomTest(httplib::Client* client) {
 template <typename Weight>
 static void RandomIntegerHelperTest(
   httplib::Client* client, 
-  const std::string& weight_type
+  const std::string& weightType
 ) {
-  // Число попыток.
   const int numTries = 100;
-  // Используется для инициализации генератора случайных чисел.
   std::random_device rd;
-  // Генератор случайных чисел.
-  std::mt19937 gen(rd());
-  // Распределение для количества вершин.
-  std::uniform_int_distribution<size_t> numVertices(10, 50);
-  // Распределение для вершин.
-  std::uniform_int_distribution<size_t> randVertices(-10'000, 10'000);
+  std::mt19937 generate(rd());
+  std::uniform_int_distribution<size_t> randVerticesNum(1, 40);
+  std::uniform_int_distribution<Weight> randWeights(1, 10000);
 
-  for (int it = 0; it < numTries; it++) {
-    // Получаем случайное кол-во вершин, используя функцию распределения.
-    size_t size = numVertices(gen);
+  for (int id = 0; id < numTries; id++) {
+    size_t numVertices = randVerticesNum(generate);
+
+    size_t maxEdges = numVertices * (numVertices - 1) / 2;
+    std::uniform_int_distribution<size_t> randEdgesNum(0, maxEdges);
+    size_t numEdges = randEdgesNum(generate);
+
+    std::uniform_int_distribution<size_t> randIndexes(0, numVertices - 1);
 
     nlohmann::json input;
+    input["id"] = id + 6;
+    input["weight_type"] = weightType;
+    input["number_of_vertices"] = numVertices;
+    input["vertices"] = std::vector<size_t>();
+    input["edges"] = std::vector<nlohmann::json>();
 
-    input["id"] = it;
-    input["weight_type"] = weight_type;
-    input["size"] = size;
+    std::vector<size_t> vertices(numVertices);
 
-    std::vector<size_t> vertices(size);
-
-    for (size_t i = 0; i < size; i++) {
-      // Получаем случайную вершину, используя функцию распределения.
-      vertices[i] = randVertices(gen);
-
-      // Записываем элемент в JSON.
-      input["vertices"][i] = vertices[i];
+    for (size_t i = 0; i < numVertices; i++) {
+      vertices[i] = i + 1;
+      input["vertices"].push_back(i + 1);
     }
 
-    //
-    //
-    // Нужно добавить рёбра и веса !
-    // В случайном графе almost certainly есть цикл?
-    //
+    Weight maxWeight = std::numeric_limits<Weight>::min();
 
-    /* Отправляем данные на сервер POST запросом. */
+    std::vector<size_t> topoOrder(numVertices);
+    std::iota(topoOrder.begin(), topoOrder.end(), 0);
+
+    std::set<std::pair<size_t, size_t>> edges;
+
+    for (size_t i = 0; i < numEdges; i++) {
+      std::uniform_int_distribution<size_t> startDist(0, numVertices - 2);
+      size_t index1 = startDist(generate); 
+      size_t u = topoOrder[index1];
+
+      std::uniform_int_distribution<size_t> endDist(u + 1, numVertices - 1);
+      size_t index2 = endDist(generate);
+      size_t v = topoOrder[index2];
+
+      while (edges.find({u, v}) != edges.end()) {
+        std::uniform_int_distribution<size_t> startDist(0, numVertices - 2);
+        index1 = startDist(generate);
+        u = topoOrder[index1];
+
+        std::uniform_int_distribution<size_t> endDist(u + 1, numVertices - 1);
+        index2 = endDist(generate); 
+        v = topoOrder[index2];
+      }
+
+      edges.insert({u, v});
+
+      Weight weight = randWeights(generate);
+
+      input["edges"].push_back({
+        {"start", vertices[u]},
+        {"end", vertices[v]},
+        {"weight", weight}
+      });
+
+      if (weight > maxWeight) maxWeight = weight;
+    }
+
     httplib::Result result = client->Post(
       "/TopologicalSort", 
       input.dump(),
       "application/json"
     );
 
-    /* Используем метод parse() для преобразования строки ответа сервера
-    (res->body) в объект JSON. */
     nlohmann::json output = nlohmann::json::parse(result->body);
 
-    /* Проверка результатов сортировки. */
-
-    REQUIRE_EQUAL(size, output.at("size"));
-    REQUIRE_EQUAL(it, output.at("id"));
-    REQUIRE_EQUAL(weight_type, output.at("weight_type"));
+    REQUIRE_EQUAL(id + 6, output.at("id"));
+    REQUIRE_EQUAL(weightType, output.at("weight_type"));
+    REQUIRE_EQUAL(maxWeight, output.at("max_weight"));
     REQUIRE_EQUAL(true, isTopologicallySorted(output.at("order"), input));
   }
 }
