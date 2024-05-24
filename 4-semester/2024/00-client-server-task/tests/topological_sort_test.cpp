@@ -27,6 +27,12 @@ static void RandomIntegerHelperTest(
   const std::string& weight_type
 );
 
+template <typename Weight>
+static void RandomFloatingPointHelperTest(
+  httplib::Client* client, 
+  const std::string& weightType
+);
+
 void TestTopologicalSort(httplib::Client* client) {
   TestSuite suite("TestTopologicalSort");
 
@@ -286,7 +292,7 @@ static void CyclicTest(httplib::Client* client) {
 static void NonLinearTest(httplib::Client* client) {
   nlohmann::json input = R"(
 {
-  "id": 5,
+  "id": 6,
   "vertices": [ 1, 2, 3, 4, 5, 6 ],
   "edges": [ 
     {
@@ -327,7 +333,7 @@ static void NonLinearTest(httplib::Client* client) {
 
   nlohmann::json output = nlohmann::json::parse(result->body);
 
-  REQUIRE_EQUAL(5, output.at("id"));
+  REQUIRE_EQUAL(6, output.at("id"));
   REQUIRE_EQUAL(11.0, output.at("max_weight"));
   REQUIRE_EQUAL(true, isTopologicallySorted(output.at("order"), input));
 }
@@ -340,21 +346,23 @@ static void NonLinearTest(httplib::Client* client) {
 static void RandomTest(httplib::Client* client) {
   RandomIntegerHelperTest<int>(client, "int");
 
-  // RandomFloatingPointHelperTest<float>(client, "float");
-  // RandomFloatingPointHelperTest<double>(client, "double");
-  // RandomFloatingPointHelperTest<long double>(client, "long double");
+  RandomFloatingPointHelperTest<float>(client, "float");
+  RandomFloatingPointHelperTest<double>(client, "double");
+  RandomFloatingPointHelperTest<long double>(client, "long double");
 }
 
 /** 
  * @brief Простейший случайный тест для целых чисел.
  *
- * @tparam T Тип данных сортируемых элементов.
+ * @tparam Weight Тип данных для весов.
  *
- * @param cli Указатель на HTTP клиент.
- * @param type Строковое представление типа данных сортируемых элементов.
+ * @param client Указатель на HTTP клиент.
+ * @param weightType Строковое представление типа данных весов вершин.
  *
  * Функция используется для сокращения кода, необходимого для поддержки
  * различных типов данных.
+ * 
+ * Рёбра добавляются в топологическом порядке, чтобы не образовались циклы.
  */
 template <typename Weight>
 static void RandomIntegerHelperTest(
@@ -365,7 +373,7 @@ static void RandomIntegerHelperTest(
   std::random_device rd;
   std::mt19937 generate(rd());
   std::uniform_int_distribution<size_t> randVerticesNum(1, 40);
-  std::uniform_int_distribution<Weight> randWeights(1, 10000);
+  std::uniform_int_distribution<Weight> randWeights(1, 10'000);
 
   for (int id = 0; id < numTries; id++) {
     size_t numVertices = randVerticesNum(generate);
@@ -377,54 +385,53 @@ static void RandomIntegerHelperTest(
     std::uniform_int_distribution<size_t> randIndexes(0, numVertices - 1);
 
     nlohmann::json input;
-    input["id"] = id + 6;
+    input["id"] = id;
     input["weight_type"] = weightType;
     input["number_of_vertices"] = numVertices;
-    input["vertices"] = std::vector<size_t>();
-    input["edges"] = std::vector<nlohmann::json>();
+    input["number_of_edges"] = numEdges;
+    input["vertices"] = std::vector<size_t>(numVertices);
+    input["edges"] = std::vector<nlohmann::json>(numEdges);
 
     std::vector<size_t> vertices(numVertices);
 
     for (size_t i = 0; i < numVertices; i++) {
       vertices[i] = i + 1;
-      input["vertices"].push_back(i + 1);
+    }
+
+    std::shuffle(vertices.begin(), vertices.end(), generate);
+
+    for (size_t i = 0; i < numVertices; i++) {
+      input["vertices"][i] = vertices[i];
     }
 
     Weight maxWeight = std::numeric_limits<Weight>::min();
-
-    std::vector<size_t> topoOrder(numVertices);
-    std::iota(topoOrder.begin(), topoOrder.end(), 0);
 
     std::set<std::pair<size_t, size_t>> edges;
 
     for (size_t i = 0; i < numEdges; i++) {
       std::uniform_int_distribution<size_t> startDist(0, numVertices - 2);
-      size_t index1 = startDist(generate); 
-      size_t u = topoOrder[index1];
+      size_t start = startDist(generate);
 
-      std::uniform_int_distribution<size_t> endDist(u + 1, numVertices - 1);
-      size_t index2 = endDist(generate);
-      size_t v = topoOrder[index2];
+      std::uniform_int_distribution<size_t> endDist(start + 1, numVertices - 1);
+      size_t end = endDist(generate);
 
-      while (edges.find({u, v}) != edges.end()) {
+      while (edges.find({start, end}) != edges.end()) {
         std::uniform_int_distribution<size_t> startDist(0, numVertices - 2);
-        index1 = startDist(generate);
-        u = topoOrder[index1];
+        start = startDist(generate);
 
-        std::uniform_int_distribution<size_t> endDist(u + 1, numVertices - 1);
-        index2 = endDist(generate); 
-        v = topoOrder[index2];
+        std::uniform_int_distribution<size_t> endDist(start + 1, numVertices - 1);
+        end = endDist(generate);
       }
 
-      edges.insert({u, v});
+      edges.insert({start, end});
 
       Weight weight = randWeights(generate);
 
-      input["edges"].push_back({
-        {"start", vertices[u]},
-        {"end", vertices[v]},
+      input["edges"][i] = {
+        {"start", vertices[start]},
+        {"end", vertices[end]},
         {"weight", weight}
-      });
+      };
 
       if (weight > maxWeight) maxWeight = weight;
     }
@@ -437,7 +444,110 @@ static void RandomIntegerHelperTest(
 
     nlohmann::json output = nlohmann::json::parse(result->body);
 
-    REQUIRE_EQUAL(id + 6, output.at("id"));
+    REQUIRE_EQUAL(id, output.at("id"));
+    REQUIRE_EQUAL(weightType, output.at("weight_type"));
+    REQUIRE_EQUAL(maxWeight, output.at("max_weight"));
+    REQUIRE_EQUAL(true, isTopologicallySorted(output.at("order"), input));
+  }
+}
+
+/** 
+ * @brief Простейший случайный тест для чисел с плавающей точкой.
+ *
+ * @tparam Weight Тип данных для весов.
+ *
+ * @param client Указатель на HTTP клиент.
+ * @param weightType Строковое представление типа данных весов вершин.
+ *
+ * Функция используется для сокращения кода, необходимого для поддержки
+ * различных типов данных.
+ * 
+ * Рёбра добавляются в топологическом порядке, чтобы не образовались циклы.
+ */
+template <typename Weight>
+static void RandomFloatingPointHelperTest(
+  httplib::Client* client, 
+  const std::string& weightType
+) {
+  const int numTries = 100;
+  std::random_device rd;
+  std::mt19937 generate(rd());
+  std::uniform_int_distribution<size_t> randVerticesNum(1, 40);
+  std::uniform_real_distribution<Weight> randWeights(
+    Weight(1), 
+    Weight(10'000)
+  );
+
+  for (int id = 0; id < numTries; id++) {
+    size_t numVertices = randVerticesNum(generate);
+
+    size_t maxEdges = numVertices * (numVertices - 1) / 2;
+    std::uniform_int_distribution<size_t> randEdgesNum(0, maxEdges);
+    size_t numEdges = randEdgesNum(generate);
+
+    std::uniform_int_distribution<size_t> randIndexes(0, numVertices - 1);
+
+    nlohmann::json input;
+    input["id"] = id;
+    input["weight_type"] = weightType;
+    input["number_of_vertices"] = numVertices;
+    input["number_of_edges"] = numEdges;
+    input["vertices"] = std::vector<size_t>(numVertices);
+    input["edges"] = std::vector<nlohmann::json>(numEdges);
+
+    std::vector<size_t> vertices(numVertices);
+
+    for (size_t i = 0; i < numVertices; i++) {
+      vertices[i] = i + 1;
+    }
+
+    std::shuffle(vertices.begin(), vertices.end(), generate);
+
+    for (size_t i = 0; i < numVertices; i++) {
+      input["vertices"][i] = vertices[i];
+    }
+
+    Weight maxWeight = std::numeric_limits<Weight>::min();
+
+    std::set<std::pair<size_t, size_t>> edges;
+
+    for (size_t i = 0; i < numEdges; i++) {
+      std::uniform_int_distribution<size_t> startDist(0, numVertices - 2);
+      size_t start = startDist(generate);
+
+      std::uniform_int_distribution<size_t> endDist(start + 1, numVertices - 1);
+      size_t end = endDist(generate);
+
+      while (edges.find({start, end}) != edges.end()) {
+        std::uniform_int_distribution<size_t> startDist(0, numVertices - 2);
+        start = startDist(generate);
+
+        std::uniform_int_distribution<size_t> endDist(start + 1, numVertices - 1);
+        end = endDist(generate);
+      }
+
+      edges.insert({start, end});
+
+      Weight weight = randWeights(generate);
+
+      input["edges"][i] = {
+        {"start", vertices[start]},
+        {"end", vertices[end]},
+        {"weight", weight}
+      };
+
+      if (weight > maxWeight) maxWeight = weight;
+    }
+
+    httplib::Result result = client->Post(
+      "/TopologicalSort", 
+      input.dump(),
+      "application/json"
+    );
+
+    nlohmann::json output = nlohmann::json::parse(result->body);
+
+    REQUIRE_EQUAL(id, output.at("id"));
     REQUIRE_EQUAL(weightType, output.at("weight_type"));
     REQUIRE_EQUAL(maxWeight, output.at("max_weight"));
     REQUIRE_EQUAL(true, isTopologicallySorted(output.at("order"), input));
