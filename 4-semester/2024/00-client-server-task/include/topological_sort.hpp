@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <unordered_map>
 #include <vector>
+#include <limits>
 #include "weighted_oriented_graph.hpp"
 
 namespace graph {
@@ -73,15 +74,17 @@ void dfs(
  * итоговый вектор, начиная с листьев. В самом конце вектор разворачивается.
  */
 template <typename Weight>
-TSortOutput<Weight> TopologicalSort(WeightedOrientedGraph<Weight>& graph) {
+TSortOutput<Weight> TopologicalSort(
+  const WeightedOrientedGraph<Weight>& graph
+) {
   std::unordered_map<size_t, DFSVertexState> visited;
   TSortOutput<Weight> result;
   result.max_weight = std::numeric_limits<Weight>::min();
   bool is_cyclic = false;
 
-  std::cout << 
-    std::endl << 
-    "in TopologicalSort graph.Vertices():" << 
+  std::cout <<
+    std::endl <<
+    "in TopologicalSort graph.Vertices():" <<
     std::endl;
 
   for (auto vertex : graph.Vertices()) {
@@ -89,7 +92,7 @@ TSortOutput<Weight> TopologicalSort(WeightedOrientedGraph<Weight>& graph) {
     std::cout << vertex << " ";
   }
   std::cout << std::endl;
-  
+
   for (auto vertex : graph.Vertices()) {
     if (is_cyclic) {
       std::cout << "is cyclic!" << std::endl;
@@ -97,7 +100,7 @@ TSortOutput<Weight> TopologicalSort(WeightedOrientedGraph<Weight>& graph) {
       result.max_weight = Weight();
       return result;
     }
-    
+
     if (visited[vertex] == DFSVertexState::NotVisited) {
       dfs<Weight>(graph, vertex, visited, result, is_cyclic);
     }
@@ -134,15 +137,15 @@ void dfs(
 ) {
   visited[vertex] = DFSVertexState::Processing;
 
-  std::cout << 
-    std::endl << 
-    "in dfs vertex: " << vertex 
+  std::cout <<
+    std::endl <<
+    "in dfs vertex: " << vertex
     << std::endl;
 
   for (auto destination : graph.Edges(vertex)) {
-    std::cout << 
-      "destination " << destination << 
-      " is visited?: " << DFSVertexState_txt[visited[destination]] << 
+    std::cout <<
+      "destination " << destination <<
+      " is visited?: " << DFSVertexState_txt[visited[destination]] <<
       std::endl;
 
     if (visited[destination] == DFSVertexState::NotVisited)
@@ -162,9 +165,9 @@ void dfs(
   }
 
   visited[vertex] = DFSVertexState::Processed;
-  std::cout << 
-    vertex << 
-    " is now " << DFSVertexState_txt[visited[vertex]] << 
+  std::cout <<
+    vertex <<
+    " is now " << DFSVertexState_txt[visited[vertex]] <<
     std::endl;
 
   result.order.push_back(vertex);
@@ -172,4 +175,4 @@ void dfs(
 
 }  // namespace graph
 
-#endif  // INCLUDE_BRIDGE_SEARCH_HPP_
+#endif  // INCLUDE_TOPOLOGICAL_SORT_HPP_

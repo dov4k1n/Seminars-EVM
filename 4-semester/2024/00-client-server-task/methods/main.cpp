@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
   svr.Post(
     "/TopologicalSort",
     [&](
-      const httplib::Request& request, 
+      const httplib::Request& request,
       httplib::Response& response
     ) {
       /*
@@ -52,11 +52,11 @@ int main(int argc, char* argv[]) {
       */
       const nlohmann::json input = nlohmann::json::parse(request.body);
       nlohmann::json output;
-      
+
       /* Если метод завершился с ошибкой, то выставляем статус 400. */
       if (TopologicalSortMethod(input, &output) < 0)
         response.status = 400;
-      
+
       /*
       Метод nlohmann::json::dump() используется для сериализации
       объекта типа nlohmann::json в строку. Метод set_content()
