@@ -2,7 +2,7 @@ project(theater CXX)
 
 cmake_minimum_required(VERSION 3.2)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 23)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMake")
 
@@ -51,8 +51,12 @@ include_directories(${THEATER_INCLUDE_DIRS})
 
 add_executable(
   theater
-  include/theater.hpp
-  include/theater_algorithms.hpp
-  include/theater_list.hpp
+  # include/theater.hpp
+  # include/theater_algorithms_edit.hpp
+  # include/theater_algorithms_print.hpp
+  # include/theater_algorithms_rate.hpp
+  # include/theater_algorithms_sort.hpp
+  # include/theater_loading.hpp
+  # include/io_helpers.hpp
   src/main/main.cpp
 )

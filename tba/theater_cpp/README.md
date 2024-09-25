@@ -1,12 +1,24 @@
 # About
 
-Version **`0.1.0`**
+## `Brief`: theaters database console app in c++
+
+Version **`1.0.0`**
 
 This project is my implementation of a task from a computer science course at university.
 
-> *I will insert the problem statement here later.*
+> ## *Problem:*
+>
+> Develop a class for storing information about **Theaters**:
+> `name`, `director`, `address`, `rating`
+> 
+> and implement an algorithm for working with an array of object data, which requires:
+> 
+> - identifying the theater with the highest rating
+> - sorting the array by names in reverse order
+> - organizing a search by the director's last name, correcting one of the fields and outputting full information about the theater after editing
+> - outputting information about theaters with a higher rating than the rating of the theater with the name specified by the user
 
-### To launch the program follow this steps:
+## To launch the program follow this steps:
 
 0. **Download this project on your local computer**
    

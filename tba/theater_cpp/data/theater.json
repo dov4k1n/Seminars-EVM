@@ -1,0 +1,46 @@
+{
+    "theaters": [
+        {
+            "address": "",
+            "director": "",
+            "id": 0,
+            "name": "",
+            "rating": 0.0
+        },
+        {
+            "address": "undefined",
+            "director": "undefined",
+            "id": 1,
+            "name": "undefined",
+            "rating": -1.0
+        },
+        {
+            "address": "Teatralnaya square, 1",
+            "director": "Valery Georgiev",
+            "id": 2,
+            "name": "Bolshoy",
+            "rating": 5.0
+        },
+        {
+            "address": "Teatralny drive, 1c1",
+            "director": "Yuri Solomin",
+            "id": 3,
+            "name": "Maly",
+            "rating": 4.8
+        },
+        {
+            "address": "Kamergensky lane, 3",
+            "director": "Konstantin Khabensky",
+            "id": 4,
+            "name": "MKhT",
+            "rating": 4.9
+        },
+        {
+            "address": "Arbat street, 26",
+            "director": "Kirill Krok",
+            "id": 5,
+            "name": "Vakhtangova",
+            "rating": 4.7
+        }
+    ]
+}
