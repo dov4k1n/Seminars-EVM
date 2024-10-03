@@ -63,19 +63,27 @@ class Set {
 
     /*Ввод, начало*/
     friend std::istream& operator>>(std::istream& in, Set& set) {
-      int* tmp = new int[set.size+1];
+      int* tmp = new int[set.size + 1];
+
       for (int i = 0; i < set.size; i++) {
         tmp[i] = set.data[i];
       }
+
       in >> tmp[set.size];
+      
       set.size++;
+      
       if (set.data)
         delete[] set.data;
+      
       set.data = new int[set.size];
+      
       for (int i = 0; i < set.size; i++) {
         set.data[i] = tmp[i];
       }
+      
       delete[] tmp;
+      
       return in;
     }
     /*Ввод, конец*/
