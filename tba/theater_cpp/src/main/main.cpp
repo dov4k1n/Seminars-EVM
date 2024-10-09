@@ -60,6 +60,10 @@ int main(int argc, char* argv[]) {
         print_help();
       }
       
+      else if (user_cmd[0] == "--friend") {
+        friend_example(theaters[theaters.size() - 1]);
+      }
+
       else if (user_cmd[0] == "--list") {
         print(theaters);
       } 

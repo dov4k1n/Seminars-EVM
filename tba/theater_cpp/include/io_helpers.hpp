@@ -14,6 +14,8 @@
 
 void print_help() {
   std::cout <<
+    '\t' << "--friend                           " << "to showcase friend example" << std::endl <<
+
     '\t' << "--list                             " << "to print theaters" << std::endl <<
     '\t' << "--greater-than X                   " << "to print theaters with rating greater than number X" << std::endl <<
     '\t' << "--greater-than theater_name        " << "to print theaters with rating greater than number X" << std::endl <<

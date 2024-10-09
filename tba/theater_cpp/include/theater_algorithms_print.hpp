@@ -14,13 +14,28 @@
 
 namespace dov4k1n {
 
+std::ostream& operator<<(std::ostream& out, const Theater& theater) {
+  out << '\t' << "id: " << theater.id << std::endl;
+  out << '\t' << "name: " << theater.name << std::endl;
+  out << '\t' << "director: " << theater.director << std::endl;
+  out << '\t' << "address: " << theater.address << std::endl;
+  out << '\t' << "rating: " << theater.rating << std::endl;
+  return out;
+}
+
+void friend_example(const Theater& theater) {
+  std::cout << "This is friend example, I'm printing last theater's name: ";
+  std::cout << theater.name << std::endl << std::endl;
+}
+
 /**
  * @brief Function prints information of Theaters from std::vector.
  */
 void print(const std::vector<Theater>& theaters) {
   for (const Theater& theater : theaters) {
     theater.print_shifted();
-    std::cout << std::endl;
+    // std::cout << theater << std::endl;
+    // std::cout << std::endl;
   }
 }
 

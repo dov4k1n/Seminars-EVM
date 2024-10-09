@@ -157,6 +157,9 @@ class Theater {
     std::cout << '\t' << "address" << std::endl;
     std::cout << '\t' << "rating" << std::endl;
   }
+
+  friend std::ostream& operator<<(std::ostream& out, const Theater& theater);
+  friend void friend_example(const Theater& theater);
 };
 
 } // namespace dov4k1n
