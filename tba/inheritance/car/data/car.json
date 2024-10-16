@@ -1,0 +1,44 @@
+{
+  "cars": [
+      {
+          "brand": "",
+          "model": "",
+          "color": "",
+          "id": 1,
+          "fuel_capacity": 0.0,
+          "consumption_rate": 0.0
+      },
+      {
+          "brand": "undefined",
+          "model": "undefined",
+          "color": "undefined",
+          "id": 2,
+          "fuel_capacity": -1.0,
+          "consumption_rate": -1.0
+      },
+      {
+          "brand": "Tesla",
+          "model": "Model 3",
+          "color": "Red",
+          "id": 3,
+          "fuel_capacity": 100.0,
+          "consumption_rate": 4.0
+      },
+      {
+          "brand": "Porsche",
+          "model": "Cayenne",
+          "color": "Black",
+          "id": 4,
+          "fuel_capacity": 110.0,
+          "consumption_rate": 7.0
+      },
+      {
+          "brand": "Audi",
+          "model": "R8",
+          "color": "White",
+          "id": 5,
+          "fuel_capacity": 130.0,
+          "consumption_rate": 15.0
+      }
+  ]
+}

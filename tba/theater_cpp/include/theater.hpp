@@ -61,7 +61,7 @@ class Theater {
    */
   Theater& operator=(const Theater& other) {
     if (this != &other) {
-      id = other.id,
+      id = other.id;
       name = other.name;
       director = other.director;
       address = other.address;
