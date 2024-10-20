@@ -63,7 +63,7 @@ void patch(
  * ".\a.exe target_file.exe".
  * 
  * In my example, I compile "g++ victim.cpp -o victim",
- * then compile "g++ ver1.cpp" in command line,
+ * then compile "g++ change_string_data.cpp" in command line,
  * then type ".\a.exe victim.exe".
  * 
  * Before the patch, typing ".\victim.exe" would print "this program is

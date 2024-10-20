@@ -3,7 +3,8 @@
  * to Sun 11.11.2001 00:00:00. If wanted, could be changed to any date
  * the user wants.
  * 
- * To read and print .exe file's binary data I use my view_exePE32+_file.cpp program.
+ * To read and print .exe file's binary data I use my 
+ * ../01-file-processing-in-binary-mode/view_exePE32+_file.cpp program.
  */
 
 #include <iostream>
@@ -45,10 +46,12 @@ int patch(FILE *f) {
  * ".\a.exe target_file.exe".
  * 
  * In my example, I compile "g++ victim.cpp -o victim",
- * then compile "g++ newPE32+.cpp -o print", then type ".\print.exe victim.exe",
+ * then compile "g++ view_exePE32+_file.cpp -o print", 
+ * then type ".\print.exe victim.exe",
  * it prints all the data from "victim.exe".
  * 
- * Then I compile "g++ ver2.cpp -o patch", type ".\patch.exe victim.exe"
+ * Then I compile "g++ change_timestamp.cpp -o patch", 
+ * type ".\patch.exe victim.exe"
  * and ".\print.exe victim.exe".
  * 
  * Before the patch, typing ".\print.exe victim.exe" prints data with
