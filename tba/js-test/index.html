@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Заказ напитков</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/webp" href="logo.webp">
+  <script src="script.js" defer></script>
+</head>
+
+<body>
+  <div class="container">
+    <div class="logo-title">
+      <img src="logo.webp" class="logo">
+      <h2>Заказ напитков</h2>
+    </div>
+    
+    <form id="orderForm">
+      <label for="drink">Напиток:</label>
+      <select id="drink">
+        <option value="tea">Чай</option>
+        <option value="coffee">Кофе</option>
+        <option value="lemonade">Лимонад</option>
+      </select>
+
+      <label for="quantity">Количество порций:</label>
+      <input type="number" id="quantity" min="1" value="1" required>
+
+      <button type="button" class="secondary" onclick="calculateCost()">Рассчитать</button>
+      <button type="button" class="secondary" onclick="resetForm()">Отмена</button>
+
+      <label for="cost">Стоимость:</label>
+      <input type="text" id="cost" readonly>
+
+      <label>Оплата:</label>
+      <div>
+        <input type="radio" id="cash" name="payment" value="cash" required>
+        <label for="cash">Наличные</label>  
+      </div>
+      
+      <div>
+        <input type="radio" id="card" name="payment" value="card">
+        <label for="card">Карта</label>
+      </div>
+      
+      <div class="pay-button-container">
+        <button class="primary">Оплатить</button>
+      </div>
+    </form>
+  </div>
+</body>
+</html>

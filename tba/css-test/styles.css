@@ -1,0 +1,98 @@
+:root {
+  --primary: #3b78e7;
+  /* --secondary-hover: #4A1A1D; */
+  --secondary: #4a90e2;
+  --secondary-hover: #365f8d;
+  --text: white;
+  --background: #4A1A1D;
+  --content-background: #4a90e2;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Roboto, sans-serif;
+  font-size: 14pt;
+  background-image: url('res/background.webp');
+  background-color: var(--background);
+  background-size: auto;
+}
+
+body::-webkit-scrollbar {
+  width: 0.5rem;
+}
+
+body::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+body::-webkit-scrollbar-thumb {
+  background: var(--secondary-hover);
+}
+
+header {
+  background-color: var(--primary);
+  padding: 1rem;
+  text-align: center;
+}
+
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+nav a {
+  color: var(--text);
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  background-color: var(--secondary);
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+nav a:hover {
+  background-color: var(--secondary-hover);
+}
+
+.logo-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.logo {
+  width: 50px;
+  height: auto;
+}
+
+h1 {
+  font-size: 24pt;
+  color: var(--text);
+}
+
+.content {
+  background-color: var(--primary);
+  color: var(--text);
+  padding: 1rem;
+  max-width: 800px;
+  margin: 2rem auto;
+  border-radius: 8px;
+}
+
+.content p {
+  text-align: justify;
+  margin-bottom: 1rem;
+}
+
+.content img {
+  width: 100%;
+  border-radius: 8px;
+}
