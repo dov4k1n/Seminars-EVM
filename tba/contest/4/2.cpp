@@ -8,12 +8,6 @@ struct Product {
   string name;
   int price;
   int count;
-
-  // Product() {
-  //   cin >> name;
-  //   cin >> price;
-  //   cin >> count;
-  // }
 };
 
 struct Store {
@@ -55,7 +49,7 @@ struct Store {
       auto b_p = b.products.begin();
 
       while (b_p != b.products.end()) {
-        if (b_p != b.products.end() && (*b_p).name == p.name) {
+        if ((*b_p).name == p.name) {
           p.count += (*b_p).count;
           (*b_p).count = 0;
         }
@@ -117,8 +111,17 @@ int main() {
 
   int t;
   cin >> t;
+  string query;
+  string method;
+  string store;
+  string product;
   while (t > 0) {
-    
+    std::getline(std::cin, query);
+    std::getline(query, method, ' ')
+    switch (input.size()):
+      case 
+
+    t--;
   }
 
   return 0;
