@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <sstream>
 
 using std::cout, std::cin, std::endl, std::string, std::vector;
 
@@ -83,7 +84,7 @@ six 100 100
 */
 
   void merge(Store& b, const string& p_name) {
-    tmp = b.products.begin();
+    auto tmp = b.products.begin();
     while (tmp != b.products.end()) {
       if ((*tmp).name != p_name) tmp++;
       else break;
@@ -115,11 +116,37 @@ int main() {
   string method;
   string store;
   string product;
+  std::istringstream query_s;
   while (t > 0) {
     std::getline(std::cin, query);
-    std::getline(query, method, ' ')
-    switch (input.size()):
-      case 
+    query_s.str() = query;
+    std::getline(query_s, method, ' ');
+    std::getline(query_s, store, ' ');
+
+    if (method == "1") {
+      switch (store) {
+        case "1":
+          s1.merge(s2);
+          break;
+        case "2":
+          s2.merge(s1);
+          break;
+        default:
+          break;
+      }
+    } else {
+      std::getline(query, product, ' ');
+      switch (store) {
+        case "1":
+          s1.merge(s2, product);
+          break;
+        case "2":
+          s2.merge(s1, product);
+          break;
+        default:
+          break;
+      }
+    }
 
     t--;
   }
