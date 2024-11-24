@@ -103,46 +103,48 @@ six 100 100
 
 int main() {
   Store s1, s2;
-  s1.print();
   int a, b;
-  cin >> a >> b;
-  s2.add_funds(a);
-  s2.withdraw_funds(b);
-  s2.print();
+  // cin >> a >> b;
+  
+  // s1.print();
+
+  // s2.add_funds(a);
+  // s2.withdraw_funds(b);
+  
+  // s2.print();
 
   int t;
   cin >> t;
-  string query;
-  string method;
-  string store;
-  string product;
-  std::istringstream query_s;
   while (t > 0) {
-    std::getline(std::cin, query);
-    query_s.str() = query;
-    std::getline(query_s, method, ' ');
-    std::getline(query_s, store, ' ');
-
-    if (method == "1") {
+    int method, store;
+    cin >> method >> store;
+    
+    if (method == 1) {
       switch (store) {
-        case "1":
+        case 1:
           s1.merge(s2);
           break;
-        case "2":
+        
+        case 2:
           s2.merge(s1);
           break;
+        
         default:
           break;
       }
-    } else {
-      std::getline(query, product, ' ');
+    } else if (method == 2) {
+      string product;
+      cin >> product;
+      
       switch (store) {
-        case "1":
+        case 1:
           s1.merge(s2, product);
           break;
-        case "2":
+        
+        case 2:
           s2.merge(s1, product);
           break;
+        
         default:
           break;
       }
@@ -150,6 +152,10 @@ int main() {
 
     t--;
   }
+
+  // cout << endl;
+  s1.print();
+  s2.print();
 
   return 0;
 }
