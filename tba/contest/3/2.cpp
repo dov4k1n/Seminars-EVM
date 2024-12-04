@@ -22,6 +22,11 @@ struct Point {
   }
 
   Point operator +(const Point& p) const { return Point(x + p.x, y + p.y); }
+  Point operator *(const long& k) { return Point(x * k, y * k); }
+  Point operator *(const Point& p) { return Point(x * p.x, y * p.y); }
+  Point& operator ~() { x = 0; y = 0; return *this; }
+  Point operator ++(int) { return Point(x * (-1), y); }
+  Point operator --(int) { return Point(x, y * (-1)); }
 };
 
 int main() {
@@ -29,4 +34,12 @@ int main() {
   cin >> a >> b;
   Point c = a + b;
   cout << c << endl;
+  
+  long k;
+  cin >> k;
+  cout << a * k << endl;
+  cout << a * b << endl;
+  cout << a-- << endl;
+  cout << b++ << endl;
+  cout << ~c << endl;
 }
