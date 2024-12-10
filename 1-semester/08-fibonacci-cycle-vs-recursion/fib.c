@@ -1,47 +1,57 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int fib(int n, int *clock) {
-	(*clock)++;
+unsigned long fib_recursive(int n, unsigned long *op_count);
+unsigned long fib_iterative(int n, unsigned long *op_count);
 
-	if (n <= 0) return -1;
-	if (n == 1 || n == 2) return 1;
-
-	return fib(n-1, clock) + fib(n - 2, clock);
-}
-
-int main() {
-	int n = 0, i = 2, f1 = 1, f2 = 1, f3, clock = 0, clock2 = 0;
-
+int main()
+{
+	int n = 0;
 	printf("enter number\n");
-	scanf("%d", &n);
-
-	if (n <= 0) {
-		printf("wrong format\n");
-		return -1;
+	while (scanf("%d", &n) != 1 || n <= 0)
+	{
+		char c = getchar();
+		while (c !='\n') c = getchar();
+		printf("wrong format, try again\n");
 	}
 
-	if (n == 1 || n == 2) {
-		printf("%dth fibonacci number by cycles ~ 1\n", n);
-		printf("clock ~ 1");
-		return 0;
-	}
-
-	while (i < n) {
-		clock2++;
-		i += 1;
-		f3 = f2 + f1;
-		f1 = f2;
-		f2 = f3;
-	}
-
-	printf("%dth fibonacci number by cycles ~ %d\n", n, f3);
-	printf("clock ~ %d\n", clock2);
-
-	if (n > 0) {
-		printf("%dth fibonacci number by recursion ~ %d\n", n, fib(n, &clock);
-		printf("clock ~ %d\n", clock);
+	unsigned long op_count;
+	for (int i = 1; i <= n; i++)
+	{
+		printf("i = %d\n", i);
+		op_count = 0;
+		printf("iterative ~ %lu, ", fib_iterative(i, &op_count));
+		printf("operations ~ %lu\n", op_count);
+		op_count = 0;
+		printf("recursive ~ %lu, ", fib_recursive(i, &op_count));
+		printf("operations ~ %lu\n\n", op_count);
 	}
 
 	return 0;
+}
+
+unsigned long fib_recursive(int n, unsigned long *op_count)
+{
+	(*op_count) += 1;
+	if (n <= 0) return -1;
+	if (n == 1 || n == 2) return 1;
+	return fib_recursive(n-1, op_count) + fib_recursive(n-2, op_count);
+}
+
+unsigned long fib_iterative(int n, unsigned long *op_count)
+{
+	(*op_count) += 1;
+	if (n <= 0)	return -1;
+	if (n == 1 || n == 2) return 1;
+
+	unsigned long result = 0, f1 = 1, f2 = 1;
+	(*op_count) = 0;
+	for (int i = 0; i < n-2; i++)
+	{
+		(*op_count) += 5;
+		result = f2 + f1;
+		f1 = f2;
+		f2 = result;
+	}
+	return result;
 }
