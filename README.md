@@ -54,7 +54,9 @@ touch main.c        # create empty file called 'main.c'
 echo                         # Write arguments to the standard output.
 echo hello                   # Write "hello" to the standard output
 help echo                    # Get info about 'echo' command
-echo "hello world" >file.txt # create file.txt and write "hello world" inside it  
+echo "hello world" >file.txt # create file.txt and write "hello world" inside it
+<program> >file.txt          # write standard output of <program> into file.txt
+<program> <file.txt          # use file.txt as standard input for <program>
 
 
 cat                    # concatenate to standart output
