@@ -159,3 +159,10 @@ Update remote
 git push -u origin main
 git push -u origin <branch name>
 ```
+
+## Pull
+Fetch from remote
+```sh
+git pull origin
+git pull --no-commit origin # fetch and merge without creating new commit
+```
