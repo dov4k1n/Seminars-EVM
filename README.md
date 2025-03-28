@@ -13,6 +13,7 @@
   - [Reset](#reset)
   - [Remote](#remote)
   - [Push](#push)
+  - [Pull](#pull)
 
 # Download folder from this repository
 https://download-directory.github.io/
@@ -119,6 +120,7 @@ git commit -m "first commit"
 List, create or switch branches
 ```sh
 git branch                 # list all branches and view current branch
+git branch -M main         # rename current branch into "main"
 git branch <branch name>   # create new branch
 git checkout <branch name> # switch to branch
 git switch <branch name>   # switch to branch
@@ -158,4 +160,11 @@ Update remote
 ```sh
 git push -u origin main
 git push -u origin <branch name>
+```
+
+## Pull
+Fetch from remote
+```sh
+git pull origin
+git pull --no-commit origin # fetch and merge without creating new commit
 ```

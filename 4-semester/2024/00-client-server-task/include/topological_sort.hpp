@@ -77,25 +77,19 @@ template <typename Weight>
 TSortOutput<Weight> TopologicalSort(
   const WeightedOrientedGraph<Weight>& graph
 ) {
+  
   std::unordered_map<size_t, DFSVertexState> visited;
   TSortOutput<Weight> result;
   result.max_weight = std::numeric_limits<Weight>::min();
   bool is_cyclic = false;
 
-  std::cout <<
-    std::endl <<
-    "in TopologicalSort graph.Vertices():" <<
-    std::endl;
-
   for (auto vertex : graph.Vertices()) {
     visited[vertex] = DFSVertexState::NotVisited;
-    std::cout << vertex << " ";
   }
-  std::cout << std::endl;
 
   for (auto vertex : graph.Vertices()) {
+
     if (is_cyclic) {
-      std::cout << "is cyclic!" << std::endl;
       result.order = std::vector<size_t>();
       result.max_weight = Weight();
       return result;
@@ -104,6 +98,7 @@ TSortOutput<Weight> TopologicalSort(
     if (visited[vertex] == DFSVertexState::NotVisited) {
       dfs<Weight>(graph, vertex, visited, result, is_cyclic);
     }
+
   }
 
   std::reverse(result.order.begin(), result.order.end());
@@ -135,40 +130,29 @@ void dfs(
   TSortOutput<Weight>& result,
   bool& is_cyclic
 ) {
+
   visited[vertex] = DFSVertexState::Processing;
 
-  std::cout <<
-    std::endl <<
-    "in dfs vertex: " << vertex
-    << std::endl;
-
   for (auto destination : graph.Edges(vertex)) {
-    std::cout <<
-      "destination " << destination <<
-      " is visited?: " << DFSVertexState_txt[visited[destination]] <<
-      std::endl;
 
-    if (visited[destination] == DFSVertexState::NotVisited)
+    if (visited[destination] == DFSVertexState::NotVisited) {
       dfs<Weight>(graph, destination, visited, result, is_cyclic);
+    }
+
     if (visited[destination] == DFSVertexState::Processing) {
       is_cyclic = true;
       return;
     }
 
     Weight current_weight = graph.EdgeWeight(vertex, destination);
+
     if (current_weight > result.max_weight) {
       result.max_weight = current_weight;
-      std::cout <<
-        "max weight is now " << current_weight <<
-        std::endl;
     }
+
   }
 
   visited[vertex] = DFSVertexState::Processed;
-  std::cout <<
-    vertex <<
-    " is now " << DFSVertexState_txt[visited[vertex]] <<
-    std::endl;
 
   result.order.push_back(vertex);
 }
