@@ -252,7 +252,7 @@ Hint: `h` is on the left, `l` is on the right, `j` looks like down arrow.
 ## Text editing
 
 **Delete**:
-* `x` -- delete symbol under the cursor.
+* `x` -- delete character at cursor.
 * `dd` -- delete line.
 * `dw` -- delete word.
 * `d$` -- delete till the end of line.
@@ -280,10 +280,10 @@ Hint: `h` is on the left, `l` is on the right, `j` looks like down arrow.
 * `<<` -- shift line left.
 
 **Copy, Paste and Move multiple lines**:
-* Enter Visual Mode (`:v`).
-* Select lines (`j` or `k`).
-* Press `y` to copy or `d` to cut.
-* Press `p` to paste after cursor or `P` to paste before cursor.
+1. Enter Visual Mode (`:v`).
+2. Select lines (`j` or `k`).
+3. Press `y` to copy or `d` to cut.
+4. Press `p` to paste after cursor or `P` to paste before cursor.
 
 ## Search and replace
 
