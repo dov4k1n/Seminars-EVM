@@ -1,5 +1,4 @@
 - [Download folder from this repository](#download-folder-from-this-repository)
-- [C++ Development Tools](#c-development-tools)
 - [Linux command line commands](#linux-command-line-commands)
 - [Git](#git)
   - [Init](#init)
@@ -14,13 +13,16 @@
   - [Remote](#remote)
   - [Push](#push)
   - [Pull](#pull)
+- [Vim](#vim)
+  - [Style](#style)
+  - [Modes](#modes)
+  - [Navigation](#navigation)
+  - [Text editing](#text-editing)
+  - [Search and replace](#search-and-replace)
+  - [Save and Exit](#save-and-exit)
 
 # Download folder from this repository
 https://download-directory.github.io/
-
-# C++ Development Tools
-
-https://drive.google.com/file/d/1JvYzauQq9o8i2dl23Gt-dIwsiKp8U1-X/view?usp=drive_link
 
 # Linux command line commands
 
@@ -168,3 +170,137 @@ Fetch from remote
 git pull origin
 git pull --no-commit origin # fetch and merge without creating new commit
 ```
+
+# Vim
+
+> vim – Vi Improved, a programmer's text editor
+> 
+> It can be used to edit all kinds of plain text. It is especially useful for editing programs
+>
+> Source: man vim
+
+To learn Vim run `vimtutor` command in Terminal. (30 min)
+
+## Style
+
+To style vim create or edit file named `.vimrc` in your home directory.
+
+Basic configuration commands:
+```vim
+syntax on             " enable syntax highlighting for various languages
+set expandtab         " replace tabs with spaces
+set tabstop=4         " tab size in spaces
+set softtabstop=4     " backspace size in spaces (for tabs)
+set shiftwidth=4      " shift size in spaces (`>>` command)
+set cindent           " auto indentation for C language
+set number            " display line numbers
+set relativenumber    " relative numeration of lines
+set cursorline        " highlight current line
+set t_Co=256          " display in 256 colors mode, if your terminal supports it
+
+colorscheme elflord   " use 'elflord' colorscheme
+```
+
+To view available colorschemes, run the following command inside Vim:
+```vim
+:colorscheme <Tab>
+```
+
+## Modes
+
+Vim works in several modes:
+*  Normal Mode: for navigation and commands.
+*  Insert Mode: for text editing.
+*  Visual Mode: for text selection.
+* Command Mode: for executing commands.
+
+**Switching between modes**:
+* `i` -- enter Insert Mode (before cursor).
+* `a` -- enter Insert Mode (after cursor).
+* `o` -- enter Insert Mode (on a new line).
+* `v` -- enter Visual Mode.
+* `:` -- enter Command Mode.
+* `Esc` -- return to Normal Mode.
+
+## Navigation
+
+Effective navigation is a key for fast work with Vim.
+
+**Basic navigation**:
+* `h` -- left.
+* `l` -- right.
+* `j` -- down.
+* `k` -- up.
+
+Hint: `h` is on the left, `l` is on the right, `j` looks like down arrow.
+
+**File navigation**:
+* Press  `G`  to move you to the bottom of the file.
+* Type  `gg`  to move you to the top of the file.
+* Hold `Ctrl` key and press `g` to show your location in the file and the file status.
+* Type the number of a line and then press `G` to move you to that line.
+
+**Quick transitions**:
+* `0` -- to the beginning of the line.
+* `$` -- to the end of the line.
+* `w` -- to the next word.
+* `b` -- to the previous word.
+* `e` -- to the end of the current word.
+* `Ctrl` + `f` -- page down.
+* `Ctrl` + `b` -- page up.
+
+## Text editing
+
+**Delete**:
+* `x` -- delete symbol under the cursor.
+* `dd` -- delete line.
+* `dw` -- delete word.
+* `d$` -- delete till the end of line.
+* `d0` -- delete till the start of line.
+* `d2w` -- delete 2 words after cursor.
+* `d3w` -- delete 3 words after cursor. And so on.
+
+**Undo**:
+* `u` -- undo last commands.
+* `Ctrl` + `r` -- redo last commands (undo the undos).
+
+**Copy and paste**:
+* `yy` -- copy line.
+* `yw` -- copy word.
+* `p` -- paste after cursor.
+* `P` -- paste before cursor.
+
+**Replace and Change**:
+* `rx` -- replace character at the cursor with 'x'.
+* `ce` -- change until the end of word.
+* `cc` -- change until the end of line.
+* `~` -- change the register of a character at the cursor.
+* `.` -- repeat last action.
+* `>>` -- shift line right.
+* `<<` -- shift line left.
+
+**Copy, Paste and Move multiple lines**:
+* Enter Visual Mode (`:v`).
+* Select lines (`j` or `k`).
+* Press `y` to copy or `d` to cut.
+* Press `p` to paste after cursor or `P` to paste before cursor.
+
+## Search and replace
+
+**Search**:
+* `/text` -- find "text" (`n` move to next occurence, `N` move to previous).
+* `:noh` -- to disable highlighting.
+
+**Replace**:
+* `:s/old/new` -- replace first occurence of "old" into "new" on current line.
+* `:s/old/new/g` -- replace all occurences of "old" into "new" on current line.
+* `:%s/old/new/g` -- replace all occurences in entire file.
+* `:%s/old/new/gc` -- same, but with confirmation of each replace.
+
+## Save and Exit
+
+* `:w` -- save file.
+* `:q` -- exit vim.
+* `:wq` or `ZZ` -- save and exit vim.
+* `q!` -- exit without save.
+
