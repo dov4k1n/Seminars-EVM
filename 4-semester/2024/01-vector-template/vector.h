@@ -193,28 +193,29 @@ typename Vector<T>::iterator Vector<T>::end() const {
 
 template <class T>
 void Vector<T>::quicksort(T* start, T* end) {
-  if (start < end) {
-    T* pivot = start;
-    T* left = start + 1;
-    T* right = end;
+  if (start >= end)
+    return;
 
-    while (left <= right) {
-      while (left <= end && *left < *pivot) {
-        ++left;
-      }
-      while (right > start && *right >= *pivot) {
-        --right;
-      }
-      if (left < right) {
-        std::swap(*left, *right);
-      }
+  T* pivot = start;
+  T* left = start + 1;
+  T* right = end;
+
+  while (left <= right) {
+    while (left <= end && *left < *pivot) {
+      ++left;
     }
-
-    std::swap(*pivot, *right);
-
-    quicksort(start, right - 1);
-    quicksort(right + 1, end);
+    while (right > start && *right >= *pivot) {
+      --right;
+    }
+    if (left < right) {
+      std::swap(*left, *right);
+    }
   }
+
+  std::swap(*pivot, *right);
+
+  quicksort(start, right - 1);
+  quicksort(right + 1, end);
 }
 
 template <class T>
@@ -264,7 +265,7 @@ bool Vector<T>::operator==(const Vector& other) const {
 template <class T>
 bool Vector<T>::operator>(const Vector& other) const {
   auto it = begin();
-	auto it_other = other.begin();
+  auto it_other = other.begin();
 	
   while (it != end() && it_other != other.end()) {
 		if (*it != *it_other)
