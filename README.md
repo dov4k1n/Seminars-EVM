@@ -20,6 +20,8 @@
   - [Text editing](#text-editing)
   - [Search and replace](#search-and-replace)
   - [Multiple Windows](#multiple-windows)
+  - [Multiple Tabs](#multiple-tabs)
+  - [File System Explorer](#file-system-explorer)
   - [History](#history)
   - [Help](#help)
   - [Save and Exit](#save-and-exit)
@@ -29,67 +31,56 @@ https://download-directory.github.io/
 
 # Linux command line commands
 
-You can add the `--help` flag to all commands to learn how to write them correctly and what else they can do.
+You can add the `--help` flag to all commands to learn how to write them  
+correctly and what else they can do.
 
 ```sh
-clear      # clear command line
+clear                 # clear command line
 
 
-history    # display the history list
-history 5  # display last 5 commands
-history N  # display last N commands
+history               # display the history list
+history 5             # display last 5 commands
+history N             # display last N commands
 
 
-ls                  # list files inside current folder
-ls folder           # list files inside 'folder'
-ls folder/subfolder # list files inside 'folder/subfolder'
+ls                    # list files inside current folder
+ls folder             # list files inside 'folder'
+ls folder/subfolder   # list files inside 'folder/subfolder'
 
 
-pwd                 # print working directory
-cd                  # change directory
-cd folder           # go to 'folder'
-cd folder/subfolder # go to 'folder/subfolder'
-cd ..               # go to previous folder
+pwd                   # print working directory
+cd                    # change directory
+cd folder             # go to 'folder'
+cd folder/subfolder   # go to 'folder/subfolder'
+cd ..                 # go to previous folder
 
 
-touch               # create empty file
-touch file.txt      # create empty file called 'file.txt'
-touch main.c        # create empty file called 'main.c'
+touch                 # create empty file
+touch file.txt        # create empty file called 'file.txt'
+touch main.c          # create empty file called 'main.c'
 
 
-echo                         # Write arguments to the standard output.
-echo hello                   # Write "hello" to the standard output
-help echo                    # Get info about 'echo' command
-echo "hello world" >file.txt # create file.txt and write "hello world" inside it
-<program> >file.txt          # write standard output of <program> into file.txt
-<program> <file.txt          # use file.txt as standard input for <program>
+echo                  # Write arguments to the standard output.
+echo hello            # Write "hello" to the standard output
+help echo             # Get info about 'echo' command
+echo "hi" >file.txt   # create file.txt and write "hi" inside it
+<program> >file.txt   # write standard output of <program> into file.txt
+<program> <file.txt   # use file.txt as standard input for <program>
 
 
-cat                    # concatenate to standart output
-cat file.txt           # print the content of 'file.txt'
-cat file.txt file2.txt # print the contents of 'file.txt' and 'file2.txt' concatenated
+cat                   # concatenate to standart output
+cat file.txt          # print content of 'file.txt'
+cat a.txt b.txt       # print contents of 'a.txt' and 'b.txt' concatenated
 
 
-mkdir                  # make directory
-mkdir folder           # make directory called 'folder'
-mkdir folder/subfolder # make directory called 'subfolder' inside 'folder'
+mkdir                 # make directory
+mkdir dir             # make directory called 'dir'
+mkdir dir/subdir      # make directory called 'subdir' inside 'dir'
 
 
-rm          # remove file(s)
-rm file.txt # remove file called 'file.txt'
-rmdir       # remove directory(ies), if empty
-
-
-vim          # open text editor "vim"
-vim file.txt # open 'file.txt' in vim
-vim main.c   # open 'main.c' in vim
-INSERT       # keyboard button to start typing into file
-ESC          # keyboard button to stop typing into file
-:q           # exit vim
-:q!          # exit vim without saving changes
-:w           # save changes in current file
-:w file2.txt # save changes in a new file called 'file2.txt' if it doesn't exist yet
-:wq          # save changes and exit vim
+rm                    # remove file(s)
+rm file.txt           # remove file called 'file.txt'
+rmdir                 # remove directory(ies), if empty
 ```
 
 # Git
@@ -184,6 +175,7 @@ git pull --no-commit origin # fetch and merge without creating new commit
 
 To learn Vim run `vimtutor` command in Terminal. (30 min)
 
+
 ## Style
 
 To style vim create or edit file named `.vimrc` in your home directory.
@@ -191,12 +183,17 @@ To style vim create or edit file named `.vimrc` in your home directory.
 Basic configuration commands:
 ```vim
 syntax on             " enable syntax highlighting for various languages
+set number            " display line numbers
+set colorcolumn=80    " colorize 80th column
+set list              " display hidden characters (end of line, tab, etc.)
+
 set expandtab         " replace tabs with spaces
 set tabstop=4         " tab size in spaces
 set softtabstop=4     " backspace size in spaces (for tabs)
 set shiftwidth=4      " shift size in spaces (`>>` command)
+
 set cindent           " auto indentation for C language
-set number            " display line numbers
+
 set relativenumber    " relative numeration of lines
 set cursorline        " highlight current line
 set t_Co=256          " display in 256 colors mode, if your terminal supports it
@@ -208,6 +205,7 @@ To view available colorschemes, run the following command inside Vim:
 ```vim
 :colorscheme <Tab>
 ```
+
 
 ## Modes
 
@@ -228,6 +226,7 @@ Vim works in several modes:
 * `:` -- enter Command Mode.
 * `Esc` -- return to Normal Mode.
 
+
 ## Navigation
 
 Effective navigation is the key to fast work with Vim.
@@ -240,13 +239,23 @@ Effective navigation is the key to fast work with Vim.
 
 Hint: `h` is on the left, `l` is on the right, `j` looks like down arrow.
 
+**View**:
+* `zz` -- **center** current line.
+* `:set so=999` -- keep cursor **centered on scroll**.
+* `Ctrl` + `e` -- move **screen up** one step.
+* `Ctrl` + `y` -- move **screen down** one step.
+* `Ctrl` + `u` -- move screen & cursor up 1/2 page.
+* `Ctrl` + `d` -- move screen & cursor down 1/2 page.
+* `zt` -- move current line to the top of the screen.
+* `zb` -- move current line to the bottom of the screen.
+* `Ctrl` + `f` -- **page down**.
+* `Ctrl` + `b` -- **page up**.
+
 **File navigation**:
 * `gg` -- move to the **top** of the file.
 * `G` -- move to the **bottom** of the file.
 * `number` + `G` -- move to line `number`.
-* `Ctrl` + `f` -- page down.
-* `Ctrl` + `b` -- page up.
-* `Ctrl` + `g` -- show location in file and file status.
+* `Ctrl` + `g` -- show file status.
 
 **Quick transitions**:
 * `0` -- start of line.
@@ -258,6 +267,7 @@ Hint: `h` is on the left, `l` is on the right, `j` looks like down arrow.
 * `W` -- next start of word (whitespace-delimeted).
 * `E` -- next end of word (whitespace-delimeted).
 * `B` -- previous start of word (whitespace-delimeted).
+
 
 ## Text editing
 
@@ -295,6 +305,7 @@ Hint: `h` is on the left, `l` is on the right, `j` looks like down arrow.
 3. Press `y` to copy or `d` to cut.
 4. Press `p` to paste after cursor or `P` to paste before cursor.
 
+
 ## Search and replace
 
 **Search**:
@@ -307,11 +318,12 @@ Hint: `h` is on the left, `l` is on the right, `j` looks like down arrow.
 * `:%s/old/new/g` -- replace all occurences in entire file.
 * `:%s/old/new/gc` -- same, but with confirmation of each replace.
 
+
 ## Multiple Windows
 
 **Split**:
-* `:split` -- split horizontally.
-* `:vsplit` -- split vertically.
+* `:split` or `Ctrl` + `w` + `s` -- split horizontally.
+* `:vsplit` or `Ctrl` + `w` + `v` -- split vertically.
 * `:hide` -- close current window.
 * `:only` -- keep only this window open.
 
@@ -320,12 +332,14 @@ Hint: `h` is on the left, `l` is on the right, `j` looks like down arrow.
 * `Ctrl` + `w` + `Ctrl` + `w` -- move cursor to another window cyclic.
 
 **Resize**:
-* `Ctrl` + `w` + `+` -- increase size of window (for horizontally splitted).
-* `Ctrl` + `w` + `-` -- decrease size of window (for horizontally splitted).
-* `number` + `Ctrl` + `w` + `+` -- increase size by `number` (for horizontally splitted).
-* `number` + `Ctrl` + `w` + `-` -- decrease size by `number` (for horizontally splitted).
+* `Ctrl` + `w` + `+` -- **increase height** of window.
+* `Ctrl` + `w` + `>` -- **increase width** of window.
+* `Ctrl` + `w` + `-` -- **reduce height** of window.
+* `Ctrl` + `w` + `<` -- **reduce width** of window.
+* `num` + above -- increase/reduce by `num`.
+* `Ctrl` + `w` + `_` -- expand horizontally.
+* `Ctrl` + `w` + `|` -- expand vertically.
 * `Ctrl` + `w` + `=` -- make all equal size.
-* `Ctrl` + `w` + `_` -- maximize current window (for horizontally splitted).
 
 **Other files**:
 * `:e filename` -- edit another file in current window.
@@ -334,19 +348,56 @@ Hint: `h` is on the left, `l` is on the right, `j` looks like down arrow.
 * `:ls` -- show current buffers (opened files history).
 * `:b 2` -- open buffer #2 in current window.
 
+
+## Multiple Tabs
+
+**Open**:
+* `vim -p file1 file2 file3` -- open each file in separate tabs.
+* `:tabedit` or `:tabe filename` -- open file in a new tab.
+* `:tabclose` or `:tabc` -- close current tab.
+* `:tabonly` or `:tabo` -- close all other tabs.
+* `Ctrl` + `w` + `T` -- open current split window in new tab.
+
+**Move**:
+* `gt` -- next tab.
+* `gT` -- prior tab.
+* `:tabfirst` -- jump to first tab.
+* `:tablast` -- jump to last tab.
+* `num` + `gt` -- open tab `num`.
+* `:tabmove num` -- move current tab to position `num`.
+* `:tabmove` -- move current tab to the end.
+
+**Search**:
+* `:tabfind filename` -- search and open file in new tab.
+* `:tabs` -- view summary of open tabs.
+
+**Refactor**:
+* `tabdo %s/foo/bar/g` -- replace "foo" into "bar" in all open tabs.
+
+
+## File System Explorer
+
+* `:Sex` -- split & explore current file's directory :-)
+* `:Vex` -- vertical split & explore.
+* `:Tex` -- tab & explore.
+* `:Ex` -- explore.
+
+
 ## History
 
 * `:history` -- show history of commands.
+
 
 ## Help
 
 * `:help` -- open vim's main help file.
 * `:help <command>` -- open help on a specific command.
 
+
 ## Save and Exit
 
 * `:w` -- save file.
 * `:q` -- exit vim.
 * `:wq` or `ZZ` -- save and exit vim.
-* `q!` -- exit without save.
-
+* `:q!` -- exit without save.
+* `:w a.txt` -- save in a new file 'a.txt', if it does not exist yet.
