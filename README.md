@@ -143,7 +143,12 @@ git reflog
 ## Reset
 Reset current HEAD to the specified state
 ```sh
-git reset --hard dc1ff05 # example
+# reset commit itself, but save changes in working directory (to fix commit)
+git reset --soft HEAD~1
+
+# fully revert commit and its changes
+git reset --hard dc1ff05 #  
+git reset --hard HEAD~1
 ```
 
 ## Remote
