@@ -203,7 +203,34 @@ set relativenumber    " relative numeration of lines
 set cursorline        " highlight current line
 set t_Co=256          " display in 256 colors mode, if your terminal supports it
 
-colorscheme elflord   " use 'elflord' colorscheme
+colorscheme wildcharm   " use 'wildcharm' colorscheme
+
+inoremap jj <esc>     " keymap to escape on 'jj' type in insert mode
+
+" copy down/up with Ctrl + j/k in normal and insert modes
+nnoremap <c-j> <esc>:copy .<CR>==
+nnoremap <c-k> <esc>:copy .-1<CR>==
+inoremap <c-j> <esc>:copy .<CR>==gi
+inoremap <c-k> <esc>:copy .-1<CR>==gi
+
+" enabling Alt key for commands on gnome-terminal
+let c='a'
+while c <= 'z'
+  exec "set <A-".c.">=\e".c
+  exec "imap \e".c." <A-".c.">"
+  let c = nr2char(1+char2nr(c))
+endw
+
+set ttimeout ttimeoutlen=50
+" end of script enabling Alt key
+
+" move line down/up with Alt + j/k in normal, insert, view modes
+nnoremap <A-j> :m .+1<CR>==
+nnoremap <A-k> :m .-2<CR>==
+inoremap <A-j> <Esc>:m .+1<CR>==gi
+inoremap <A-k> <Esc>:m .-2<CR>==gi
+vnoremap <A-j> :m '>+1<CR>gv=gv
+vnoremap <A-k> :m '<-2<CR>gv=gv
 ```
 
 To view available colorschemes, run the following command inside Vim:
