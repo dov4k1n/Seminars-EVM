@@ -50,9 +50,11 @@ ls folder/subfolder   # list files inside 'folder/subfolder'
 
 pwd                   # print working directory
 cd                    # change directory
-cd folder             # go to 'folder'
-cd folder/subfolder   # go to 'folder/subfolder'
-cd ..                 # go to previous folder
+cd dir                # go to 'dir'
+cd dir/subdir         # go to 'dir/subdir'
+cd ..                 # go to the directory upwards
+cd                    # with no arguments -- go to home directory
+cd -                  # go to previous directory
 
 
 touch                 # create empty file
@@ -82,6 +84,68 @@ rm                    # remove file(s)
 rm file.txt           # remove file called 'file.txt'
 rmdir                 # remove directory(ies), if empty
 ```
+
+## Fast navigation on command line
+
+### 1. Navigating without arrow keys
+
+* `Ctrl` + `A` -- go to the *beginning* of line
+* `Ctrl` + `E` -- go to the *end* of line 
+* `Ctrl` + `F` -- skip one symbol *forward*
+* `Ctrl` + `B` -- skip one symbol *backward*
+* `Alt` + `F` -- skip one word *forward*
+* `Alt` + `B` -- skip one word *backward*
+
+### 2. Don't use backspace or delete keys
+
+* `Ctrl` + `U` -- delete to the *beginning* of line
+* `Ctrl` + `K` -- delete to the *end* of line
+* `Ctrl` + `D` -- delete to the right
+* `Alt` + `D` -- delete to the *end of word*
+
+Also may be helpful: `Alt` + `U` -- *capitalize* to the end of word
+
+### 3. Execute multiple commands in one line
+
+* Add `;` after command to execute the next one in sequence
+* Add `&&` after command to stop the sequence, if one fails
+
+```bash
+git add .; git commit -m "example"; git push origin main
+
+git add. && git commit -m "example" && git push origin main
+```
+
+### 4. Alias frequently used commands
+
+Open your `~/.bashrc` file (if your shell is Bash) and add alias as in example:
+```bash
+alias gpom="git push origin main"
+```
+
+After that reload your configuration running:
+```bash
+. ~/.bashrc
+```
+
+### 5. Run from history faster
+
+Type `history` and then `!number`, where `number` is the number of the command 
+in history
+
+Or, type `Ctrl` + `R` and few letters of the command you want to repeat. The 
+rest will be autocomplited
+
+Type `!!` to execute last command. You can also do `sudo !!` to execute last 
+command as a super user
+
+Type `Alt` + `.` to paste arguments from the history
+
+### 6. Background tasks
+
+Type `Ctrl` + `Z` to background current task (useful for `vim`, `less` and 
+others). Return them back by entering `fg N`, where `N` is the backgrounded 
+task number, which can be found by entering `jobs` command
 
 # Git
 Git is a *Version Control System (VCS)* - a program for facilitating work with changing information
