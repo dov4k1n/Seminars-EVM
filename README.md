@@ -1,4 +1,4 @@
-- [Download folder from this repository](#download-folder-from-this-repository)
+- [Download directory from this repository](#download-directory-from-this-repository)
 - [Linux command line commands](#linux-command-line-commands)
   - [Fast navigation on command line](#fast-navigation-on-command-line)
     - [1. Navigating without arrow keys](#1-navigating-without-arrow-keys)
@@ -33,7 +33,7 @@
   - [Help](#help)
   - [Save and Exit](#save-and-exit)
 
-# Download folder from this repository
+# Download directory from this repository
 https://download-directory.github.io/
 
 # Linux command line commands
@@ -50,9 +50,9 @@ history 5             # display last 5 commands
 history N             # display last N commands
 
 
-ls                    # list files inside current folder
-ls folder             # list files inside 'folder'
-ls folder/subfolder   # list files inside 'folder/subfolder'
+ls                    # list files inside current directory 
+ls dir                # list files inside 'dir'
+ls dir/subdir         # list files inside 'dir/subdir'
 
 
 pwd                   # print working directory
@@ -215,10 +215,11 @@ git reflog
 Reset current HEAD to the specified state
 ```sh
 # reset commit itself, but save changes in working directory (to fix commit)
+git reset --soft dc1ff05 # or
 git reset --soft HEAD~1
 
 # fully revert commit and its changes
-git reset --hard dc1ff05 #  
+git reset --hard dc1ff05 # or 
 git reset --hard HEAD~1
 ```
 
@@ -504,3 +505,4 @@ Hint: `h` is on the left, `l` is on the right, `j` looks like down arrow.
 * `:wq` or `ZZ` -- save and exit vim.
 * `:q!` -- exit without save.
 * `:w a.txt` -- save in a new file 'a.txt', if it does not exist yet.
+
