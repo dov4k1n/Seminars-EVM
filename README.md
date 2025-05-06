@@ -96,21 +96,21 @@ rmdir                 # remove directory(ies), if empty
 
 ### 1. Navigating without arrow keys
 
-* `Ctrl` + `A` -- go to the *beginning* of line
-* `Ctrl` + `E` -- go to the *end* of line 
-* `Ctrl` + `F` -- skip one symbol *forward*
-* `Ctrl` + `B` -- skip one symbol *backward*
-* `Alt` + `F` -- skip one word *forward*
-* `Alt` + `B` -- skip one word *backward*
+* `Ctrl` + `A` -- go to the **beginning** of line
+* `Ctrl` + `E` -- go to the **end** of line 
+* `Ctrl` + `F` -- skip one symbol **forward**
+* `Ctrl` + `B` -- skip one symbol **backward**
+* `Alt` + `F` -- skip one word **forward**
+* `Alt` + `B` -- skip one word **backward**
 
 ### 2. Don't use backspace or delete keys
 
-* `Ctrl` + `U` -- delete to the *beginning* of line
-* `Ctrl` + `K` -- delete to the *end* of line
-* `Ctrl` + `D` -- delete to the right
-* `Alt` + `D` -- delete to the *end of word*
+* `Ctrl` + `U` -- delete to the **beginning** of line
+* `Ctrl` + `K` -- delete to the **end** of line
+* `Ctrl` + `D` -- delete to the **right**
+* `Alt` + `D` -- delete to the **end of word**
 
-Also may be helpful: `Alt` + `U` -- *capitalize* to the end of word
+Also may be helpful: `Alt` + `U` -- **capitalize** to the end of word
 
 ### 3. Execute multiple commands in one line
 
@@ -120,7 +120,7 @@ Also may be helpful: `Alt` + `U` -- *capitalize* to the end of word
 ```bash
 git add .; git commit -m "example"; git push origin main
 
-git add. && git commit -m "example" && git push origin main
+git add . && git commit -m "example" && git push origin main
 ```
 
 ### 4. Alias frequently used commands
@@ -141,7 +141,7 @@ Type `history` and then `!number`, where `number` is the number of the command
 in history
 
 Or, type `Ctrl` + `R` and few letters of the command you want to repeat. The 
-rest will be autocomplited
+rest will be autocompleted
 
 Type `!!` to execute last command. You can also do `sudo !!` to execute last 
 command as a super user
@@ -152,7 +152,7 @@ Type `Alt` + `.` to paste arguments from the history
 
 Type `Ctrl` + `Z` to background current task (useful for `vim`, `less` and 
 others). Return them back by entering `fg N`, where `N` is the backgrounded 
-task number, which can be found by entering `jobs` command
+task number, which can be found by running `jobs` command
 
 # Git
 Git is a *Version Control System (VCS)* - a program for facilitating work with changing information
