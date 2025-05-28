@@ -278,6 +278,7 @@ set t_Co=256          " display in 256 colors mode, if your terminal supports it
 colorscheme wildcharm   " use 'wildcharm' colorscheme
 
 inoremap jj <esc>     " keymap to escape on 'jj' type in insert mode
+nnoremap q :q<enter>  " keymap to quit on 'q' type in normal mode
 
 " copy down/up with Ctrl + j/k in normal and insert modes
 nnoremap <c-j> <esc>:copy .<CR>==
